@@ -1,3 +1,10 @@
+/* TODO:
+  * - Obtenir valors del servidor
+  * - Afegir opció de saber el temps que farà.
+  * - Afeegir cèl·lula fotoelecèctrica per no regar si fa molt sol.
+  * - Implementar actualitzacions del sketch via OTA (Sembla que no pot ser, <64kb)
+*/
+
 #include <SPI.h>
 #include <WiFiNINA.h>
 
@@ -29,6 +36,8 @@ const int OFF = HIGH;
 int humidityLevel = 450;
 int nivellHumitat[4] = { 450, 450, 450, 450 }; // TODO: Aquí tindria que agafar els nivells d'umitat marcats al servidor.
 int moistureThreshold[4] = { nivellHumitat[0], nivellHumitat[1], nivellHumitat[2], nivellHumitat[3] };  // Ajustar a les necesitats de cada planta
+int moistureLevel;  
+
 
 int freq = 1;                           // TODO: Aquí tindria que agafar el valor del servidor
 long retestHumidityTime = 60000 * freq;  // Cada quanta estona es fa un test d'humitat
@@ -52,7 +61,7 @@ void setup() {
 
   delay(500);
 
-  //Inicialitza la Wifi
+  //Inicialitza la Wifi *******************************************************
   //Initialize serial and wait for port to open:
   Serial.begin(9600);
   while (!Serial) {
@@ -81,15 +90,19 @@ void setup() {
     // espera 10 segons per la connexió:
     delay(10000);
   }
-  // FI Wifi setup
 
-  // Inici recolliada variables al servidor robot
+  // Ara ja estàs connectat:
+  Serial.print("Connectat a la xarxa");
+
+  // FI Wifi setup **************************************************************
+
+
+  // Recollir valors d'inici del servidor robot
 }
 
 
 
 void loop() {
-  int moistureLevel;  
 
   for(int i = 0; i < 4; i++) {
     moistureLevel = analogRead(moistureSensor[i]);

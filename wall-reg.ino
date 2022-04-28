@@ -31,7 +31,7 @@ int nivellHumitat[4] = { 450, 450, 450, 450 }; // TODO: Aquí tindria que agafar
 int moistureThreshold[4] = { nivellHumitat[0], nivellHumitat[1], nivellHumitat[2], nivellHumitat[3] };  // Ajustar a les necesitats de cada planta
 
 int freq = 1;                           // TODO: Aquí tindria que agafar el valor del servidor
-int retestHumidityTime = 60000 * freq;  // Cada quanta estona es fa un test d'humitat
+long retestHumidityTime = 60000 * freq;  // Cada quanta estona es fa un test d'humitat
 
 // Paràmetres de la wifi
 char ssid[] = SECRET_SSID;

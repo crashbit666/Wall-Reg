@@ -93,7 +93,6 @@ void setup() {
 
   // Ara ja estàs connectat:
   Serial.print("Connectat a la xarxa");
-
   // FI Wifi setup **************************************************************
 
 

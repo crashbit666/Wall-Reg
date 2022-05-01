@@ -13,7 +13,7 @@ int moistureLevel[4];
 
 
 int freq = 1;                           // TODO: Aquí tindria que agafar el valor del servidor
-long retestHumidityTime = 60000 * freq;  // Cada quanta estona es fa un test d'humitat
+long retestHumidityTime = 60000 * freq; // Cada quanta estona es fa un test d'humitat
 
 void initialize_waterPump() {
   //Inicialitza el relé i el sensor d'humitat
@@ -25,15 +25,18 @@ void initialize_waterPump() {
   delay(500);
 }
 
+// Activa el relé i comença a regar.
 void activateRelay(int i) {
   digitalWrite(pumpRelay[i], ON);
 }
 
+// Desactiva el relé i deixa de regar.
 void deactivateRelay(int i) {
   digitalWrite(pumpRelay[i], OFF);
 }
 
-void testMoistureLevel(int i) {
+// Comprova si els nivells d'humitat són els adecuats, de no ser així activa/desactiva el relé.
+void testMoistureLevel() {
   for(int i = 0; i < 4; i++) {
     moistureLevel[i] = analogRead(moistureSensor[i]);
     if(moistureLevel[i] > moistureThreshold[i]) {
@@ -46,11 +49,13 @@ void testMoistureLevel(int i) {
   delay(retestHumidityTime);
 }
 
+// Això serveix per que si hi ha un relé obert (és a dir, està regant), no faci el següent test al cap de 5 segons i no el temps establert per servidor.
+// De no fer-ho es podria donar el cas que un relé estigués fins a 60 minuts funcionant. Cosa molt perillosa.
 void checkOpenRelay() {
   for(int i = 0; i < 4; i++) {
     if(digitalRead(pumpRelay[i]) == ON) {
       retestHumidityTime = 5000; // El motor no volem que es quedi engegat sense tornar a mirar la humitat més de 5 segons.
-      break;
+      break;                     // Aquest break, en teoria houria de deixar el valor de retestHumidityTime a 5 segons.
     } else {
       retestHumidityTime = 60000 * freq; // Torna a posar el temps de retest de la humitat a l'establert al servidor.
     }

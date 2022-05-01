@@ -1,8 +1,8 @@
 /* TODO:
-  * - Obtenir valors del servidor
-  * - Afegir opció de saber el temps que farà.
-  * - Afeegir cèl·lula fotoelecèctrica per no regar si fa molt sol.
-  * - Implementar actualitzacions del sketch via OTA (Sembla que no pot ser, <64kb)
+  * - Obtenir valors del servidor (Tema important)
+  * - Afegir opció de saber el temps que farà. Per tal de poder predir si fa falta regar o en unes hores es posarà a ploure.
+  * - Afeegir cèl·lula fotoelecèctrica per no regar si fa molt sol. (Mirar si la puc situar bé).
+  * - Implementar actualitzacions del sketch via OTA (Sembla que no pot ser ja que la placa es <64kb)
 */
 
 #include "wifi.h"
@@ -30,7 +30,7 @@
 
 void setup() {
   //Inicialitza la consola
-  Serial.begin(9600);
+  // Serial.begin(9600); // Sembla que ja s'incia al fitxer wifi.cpp.
 
   //Inicialitza la Wifi
   initialize_wifi();
@@ -39,9 +39,6 @@ void setup() {
   initialize_waterPump();
 }
 
-
 void loop() {
-  for(int i = 0; i < 4; i++) {
-    testMoistureLevel(i);
-  }
+  testMoistureLevel();
 }

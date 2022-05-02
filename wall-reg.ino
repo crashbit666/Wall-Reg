@@ -5,8 +5,8 @@
   * - Implementar actualitzacions del sketch via OTA (Sembla que no pot ser ja que la placa es <64kb)
 */
 
-#include "wifi.h"
 #include "waterpumpmoisture.h"
+#include "wifi_firebase.h"
 
 ////// Variables servidor //////
 // Nivells humitat: (humidityLevel)
@@ -29,11 +29,8 @@
 //600 -> completament sec.
 
 void setup() {
-  //Inicialitza la consola
-  // Serial.begin(9600); // Sembla que ja s'incia al fitxer wifi.cpp.
-
-  //Inicialitza la Wifi
-  initialize_wifi();
+  //Inicialitza la Wifi i firebase
+  initialize_wifi_firebase();
 
   //Inicialitza el relé i el sensor d'humitat
   initialize_waterPump();

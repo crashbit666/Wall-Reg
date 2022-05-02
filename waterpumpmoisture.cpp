@@ -1,5 +1,6 @@
 #include <SPI.h>
 #include "waterpumpmoisture.h"
+#include "wifi_firebase.h"
 
 const int pumpRelay[4] = { 2, 3, 4, 5 };
 const int moistureSensor[4] = { A0, A1, A2, A3 };
@@ -39,6 +40,7 @@ void deactivateRelay(int i) {
 void testMoistureLevel() {
   for(int i = 0; i < 4; i++) {
     moistureLevel[i] = analogRead(moistureSensor[i]);
+    sendData(i,moistureLevel[i]);
     if(moistureLevel[i] > moistureThreshold[i]) {
       activateRelay(i);
     } else {

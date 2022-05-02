@@ -1,6 +1,5 @@
 #include "Firebase_Arduino_WiFiNINA.h"
 #include "arduino_secrets.h"
-#include "Firebase_Arduino_WiFiNINA.h"
 
 String path="/torretes";
 FirebaseData fbdo;
@@ -9,13 +8,14 @@ FirebaseData fbdo;
 char ssidf[] = SECRET_SSIDF;
 char passf[] = SECRET_PASSF;
 char dbsf[] = SECRET_DBSF;
+char fbhost[] = SECRET_FBHOST;
 
 void initialize_wifi_firebase() {
   Serial.begin(115200);
   delay(100);
   
   //Connecta a la Wifi
-  Serial.print("Connecting to Wi-Fi");
+  Serial.print("Connectant a la Wi-Fi");
   int status = WL_IDLE_STATUS;
   while (status != WL_CONNECTED)
   {
@@ -24,12 +24,12 @@ void initialize_wifi_firebase() {
     delay(100);
   }
   Serial.println();
-  Serial.print("Connected with IP: ");
+  Serial.print("Connectat amb IP: ");
   Serial.println(WiFi.localIP());
   Serial.println();
   
   //Dades d'autentificació
-  Firebase.begin("wall-reg-default-rtdb.europe-west1.firebasedatabase.app", dbsf, ssidf, passf);
+  Firebase.begin(fbhost, dbsf, ssidf, passf);
   Firebase.reconnectWiFi(true);
 
 }
@@ -41,6 +41,31 @@ void showError() {
   Serial.println();
 }
 
+/* Estructura de la bbdd de firebase 
+ *
+ *
+ * /Torretes
+ *    Sensors humitat
+ *      Torreta 1
+ *        Sensor 0 (int valor)
+ *        Sensor 1 (int valor)
+ *      Torreta 2
+ *        Sensor 2 (int valor)
+ *        Sensor 3 (int valor)
+ *    Noms plantes
+ *      Torreta 1
+ *        Nom planta 0 (String valor)
+ *        Nom planta 1 (String valor)
+ *      Torreta 2
+ *        Nom planta 2 (String valor)
+ *        Nom planta 3 (String valor)
+ *    Freqüencia de refresc (int 1 - 15 - 30 - 45 - 60 minuts) 
+ *    Nivells d'humitat (int 600 - 525 - 450 - 375 - 300)
+ *    weather (bool)
+ *      
+ *   
+*/
+
 void sendData(int i, int valor) {
   int torreta;
   if (i<2) {
@@ -48,8 +73,28 @@ void sendData(int i, int valor) {
   } else {
     torreta = 2;
   }
-  Serial.println(path +  "/" + torreta +  "/sensor_humitat/" + i + valor);
-  if (!Firebase.setInt(fbdo, path +  "/" + torreta +  "/Sensor_Humitat/" + i, valor)) {
+  if (!Firebase.setInt(fbdo, path + "/Sensor_Humitat/" + torreta + "/" + i, valor)) {
     showError();
   }
+}
+
+int getdataFreq() {
+  if (Firebase.getInt(fbdo, path + "/frecuencia")) {
+    int fq = fbdo.intData();
+    return fq;
+  } else {
+    showError();
+  }
+}
+
+int * getdataNivellHumitat() {
+  static int hl[4];
+  for (int i = 0; i < 4; i++) {
+    if (Firebase.getInt(fbdo, path + "/Config_Humidity/" + i)) {
+      hl[i] = fbdo.intData();
+    } else {
+      showError();
+    }
+  }
+  return hl;
 }

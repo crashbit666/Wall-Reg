@@ -12,8 +12,7 @@ int nivellHumitat[4] = { 450, 450, 450, 450 }; // TODO: Aquí tindria que agafar
 int moistureThreshold[4] = { nivellHumitat[0], nivellHumitat[1], nivellHumitat[2], nivellHumitat[3] };  // Ajustar a les necesitats de cada planta
 int moistureLevel[4];  
 
-
-int freq = 1;                           // TODO: Aquí tindria que agafar el valor del servidor
+int freq;   //Inicialitza la variable sense valor. Ja agafa el valor del servidor firebase.
 long retestHumidityTime = 60000 * freq; // Cada quanta estona es fa un test d'humitat
 
 void initialize_waterPump() {
@@ -40,7 +39,7 @@ void deactivateRelay(int i) {
 void testMoistureLevel() {
   for(int i = 0; i < 4; i++) {
     moistureLevel[i] = analogRead(moistureSensor[i]);
-    sendData(i,moistureLevel[i]);
+    sendData(i,moistureLevel[i]); // Envia les dades a la bbdd firebase. Concretament
     if(moistureLevel[i] > moistureThreshold[i]) {
       activateRelay(i);
     } else {
@@ -61,5 +60,16 @@ void checkOpenRelay() {
     } else {
       retestHumidityTime = 60000 * freq; // Torna a posar el temps de retest de la humitat a l'establert al servidor.
     }
+  }
+}
+
+// Aquesta funció agafa els valors de les variables del servidor que posteriorment s'inicialitzaran al setup()
+void getallServerOptions() {
+  freq = getdataFreq();
+
+  int *hlptr;
+  hlptr = getdataNivellHumitat();
+  for(int i = 0; i < 4; i++) {
+    nivellHumitat[i] = *(hlptr + i);
   }
 }

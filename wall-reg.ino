@@ -34,6 +34,9 @@ void setup() {
 
   //Inicialitza el relé i el sensor d'humitat
   initialize_waterPump();
+
+  //Inicialitza variables del servidor per primer cop
+  getallServerOptions();
 }
 
 void loop() {

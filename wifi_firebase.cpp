@@ -66,6 +66,7 @@ void showError() {
  *   
 */
 
+// Aquesta funció envia les dades dels sensor d'humitat al servidor firebase.
 void sendData(int i, int valor) {
   int torreta;
   if (i<2) {
@@ -78,6 +79,7 @@ void sendData(int i, int valor) {
   }
 }
 
+// Aquesta funció retorna les dades de frequencia configurada al servidor.
 int getdataFreq() {
   if (Firebase.getInt(fbdo, path + "/frecuencia")) {
     int fq = fbdo.intData();
@@ -87,6 +89,8 @@ int getdataFreq() {
   }
 }
 
+// Aquesta funció retorna els valors configurats de nivell d'humitat. 
+// La funció retorna un punter, ja que interessa recuperar les dades com un array.
 int * getdataNivellHumitat() {
   static int hl[4];
   for (int i = 0; i < 4; i++) {

@@ -7,8 +7,7 @@ const int moistureSensor[4] = { A0, A1, A2, A3 };
 const int ON = LOW;
 const int OFF = HIGH;
 
-int humidityLevel = 450;
-int nivellHumitat[4] = { 450, 450, 450, 450 }; // TODO: Aquí tindria que agafar els nivells d'umitat marcats al servidor.
+int nivellHumitat[4]; // Inicialitza la variable sense valor per posteriorment recollira-la del servidor fb
 int moistureThreshold[4] = { nivellHumitat[0], nivellHumitat[1], nivellHumitat[2], nivellHumitat[3] };  // Ajustar a les necesitats de cada planta
 int moistureLevel[4];  
 
@@ -65,8 +64,11 @@ void checkOpenRelay() {
 
 // Aquesta funció agafa els valors de les variables del servidor que posteriorment s'inicialitzaran al setup()
 void getallServerOptions() {
+  
+  // Recupera la freqüencia de refresc dels sensors
   freq = getdataFreq();
 
+  // Això és una mica ticky. Es tracta de recollir el punter retornat per la funció getdataNivellHumitat per poder treballar amb l'array
   int *hlptr;
   hlptr = getdataNivellHumitat();
   for(int i = 0; i < 4; i++) {

@@ -30,6 +30,7 @@
 #include "Firebase_Arduino_WiFiNINA.h"
 #include "arduino_secrets.h"
 
+// El path és important per llegir i enviar la informació a firebase. També creem un objecte de Firebase.
 String path="/torretes";
 FirebaseData fbdo;
 
@@ -39,21 +40,29 @@ char passf[] = SECRET_PASSF;
 char dbsf[] = SECRET_DBSF;
 char fbhost[] = SECRET_FBHOST;
 
-
+// Variables per el temps que porta executant-se el programa i el temps des de la última execució de les medicions.
 unsigned long timeActual = 0;
 unsigned long timeLastExecute = 0;
 
+//Inicialitza la variable sense valor. Ja agafa el valor del servidor firebase.
+int freq;
+
+// Inicialitza paràmetres del relé i els sensors.
 const int pumpRelay[4] = { 2, 3, 4, 5 };
 const int moistureSensor[4] = { A0, A1, A2, A3 };
 const int ON = LOW;
 const int OFF = HIGH;
 
-int nivellHumitat[4]; // Inicialitza la variable sense valor per posteriorment recollira-la del servidor fb
+// Inicialitza la variable sense valor per posteriorment recollira-la del servidor fb
+int nivellHumitat[4];
 int moistureLevelSensor[4];  
 
-int freq;   //Inicialitza la variable sense valor. Ja agafa el valor del servidor firebase.
-long unsigned retestHumidityTime = 0;
 
+// ********************************************************
+// *            Inici de les funcions                     *
+// ********************************************************
+
+// Funció per inicialitzar relé i sensor d'humitat.
 void initialize_waterPump() {
   //Inicialitza el relé i el sensor d'humitat
   for(int i = 0; i < 4; i++) {
@@ -64,12 +73,12 @@ void initialize_waterPump() {
   delay(500);
 }
 
-// Activa el relé i comença a regar.
+// Funció que activa el relé i comença a regar.
 void activateRelay(int i) {
   digitalWrite(pumpRelay[i], ON);
 }
 
-// Desactiva el relé i deixa de regar.
+// Funció que desactiva el relé i deixa de regar.
 void deactivateRelay(int i) {
   digitalWrite(pumpRelay[i], OFF);
 }
@@ -87,8 +96,8 @@ void testMoistureLevel() {
   }
 }
 
-// Això serveix per que si hi ha un relé obert (és a dir, està regant), no faci el següent test al cap de 5 segons i no el temps establert per servidor.
-// De no fer-ho es podria donar el cas que un relé estigués fins a 60 minuts funcionant. Cosa molt perillosa.
+// Aquest funció serveix per que si hi ha un relé obert (és a dir, està regant), no faci el següent test al cap de 5 segons i no el temps establert per servidor.
+// De no fer-ho es podria donar el cas que un relé estigués fins a 60 minuts funcionant.
 bool checkOpenRelay() {
   for(int i = 0; i < 4; i++) {
     if(digitalRead(pumpRelay[i]) == ON) {
@@ -99,7 +108,7 @@ bool checkOpenRelay() {
   }
 }
 
-// Aquesta funció agafa els valors de les variables del servidor que posteriorment s'inicialitzaran al setup()
+// Aquesta funció agafa els valors de les variables del servidor que posteriorment s'inicialitzaran al setup() i es recomprova segons la frequencia.
 void getallServerOptions() {
   
   // Recupera la freqüencia de refresc dels sensors
@@ -114,11 +123,10 @@ void getallServerOptions() {
 }
 
 long unsigned humidityTime() {
-  return retestHumidityTime * freq; 
+  return 60000 * freq; 
 }
 
-
-
+// La següent funció inicialitza els paràmetres del servidor firebase.
 void initialize_wifi_firebase() {
   Serial.begin(115200);
   delay(100);
@@ -169,12 +177,12 @@ void showError() {
  *        Nom planta 3 (String valor)
  *    Freqüencia de refresc (int 1 - 15 - 30 - 45 - 60 minuts) 
  *    Nivells d'humitat (int 600 - 525 - 450 - 375 - 300)
- *    weather (bool)
+ *    weather (bool) (PENDENT IMPLEMENTAR)
  *      
  *   
 */
 
-// Aquesta funció envia les dades dels sensor d'humitat al servidor firebase.
+// Aquesta funció envia les dades dels sensor d'humitat al servidor firebase. La primera part detecta la torreta per després poder treballar amb app mobil.
 void sendData(int i, int valor) {
   int torreta;
   if (i<2) {
@@ -214,6 +222,9 @@ int * getdataNivellHumitat() {
 }
 
 
+// *********************************************************
+// ********************** setup() **************************
+// *********************************************************
 
 void setup() {
   //Inicialitza la Wifi i firebase
@@ -222,6 +233,10 @@ void setup() {
   //Inicialitza el relé i el sensor d'humitat
   initialize_waterPump();
 }
+
+// *********************************************************
+// ********************** loop() ***************************
+// *********************************************************
 
 void loop() {
   timeActual = millis();

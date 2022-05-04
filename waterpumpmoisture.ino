@@ -1,6 +1,4 @@
 #include <SPI.h>
-#include "waterpumpmoisture.h"
-#include "wifi_firebase.h"
 
 const int pumpRelay[4] = { 2, 3, 4, 5 };
 const int moistureSensor[4] = { A0, A1, A2, A3 };
@@ -8,11 +6,10 @@ const int ON = LOW;
 const int OFF = HIGH;
 
 int nivellHumitat[4]; // Inicialitza la variable sense valor per posteriorment recollira-la del servidor fb
-int moistureThreshold[4] = { nivellHumitat[0], nivellHumitat[1], nivellHumitat[2], nivellHumitat[3] };  // Ajustar a les necesitats de cada planta
-int moistureLevel[4];  
+int moistureLevelSensor[4];  
 
 int freq;   //Inicialitza la variable sense valor. Ja agafa el valor del servidor firebase.
-long retestHumidityTime = 60000 * freq; // Cada quanta estona es fa un test d'humitat
+long unsigned retestHumidityTime = 60000 * freq; // Cada quanta estona es fa un test d'humitat
 
 void initialize_waterPump() {
   //Inicialitza el relé i el sensor d'humitat
@@ -37,16 +34,15 @@ void deactivateRelay(int i) {
 // Comprova si els nivells d'humitat són els adecuats, de no ser així activa/desactiva el relé.
 void testMoistureLevel() {
   for(int i = 0; i < 4; i++) {
-    moistureLevel[i] = analogRead(moistureSensor[i]);
-    sendData(i,moistureLevel[i]); // Envia les dades a la bbdd firebase. Concretament
-    if(moistureLevel[i] > moistureThreshold[i]) {
+    moistureLevelSensor[i] = analogRead(moistureSensor[i]);
+    sendData(i,moistureLevelSensor[i]); // Envia les dades a la bbdd firebase. Concretament
+    if(moistureLevelSensor[i] > nivellHumitat[i]) {
       activateRelay(i);
     } else {
       deactivateRelay(i);
     }
   }
   checkOpenRelay();
-  delay(retestHumidityTime);
 }
 
 // Això serveix per que si hi ha un relé obert (és a dir, està regant), no faci el següent test al cap de 5 segons i no el temps establert per servidor.
@@ -74,4 +70,8 @@ void getallServerOptions() {
   for(int i = 0; i < 4; i++) {
     nivellHumitat[i] = *(hlptr + i);
   }
+}
+
+long unsigned humidityTime() {
+  return 60000 * freq; 
 }

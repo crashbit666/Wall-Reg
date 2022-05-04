@@ -31,7 +31,6 @@ void initialize_wifi_firebase() {
   //Dades d'autentificació
   Firebase.begin(fbhost, dbsf, ssidf, passf);
   Firebase.reconnectWiFi(true);
-
 }
 
 void showError() {
@@ -83,6 +82,7 @@ void sendData(int i, int valor) {
 int getdataFreq() {
   if (Firebase.getInt(fbdo, path + "/frecuencia")) {
     int fq = fbdo.intData();
+    fbdo.clear();
     return fq;
   } else {
     showError();
@@ -100,5 +100,6 @@ int * getdataNivellHumitat() {
       showError();
     }
   }
+  fbdo.clear();
   return hl;
 }

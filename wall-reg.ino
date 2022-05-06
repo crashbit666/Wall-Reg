@@ -3,6 +3,7 @@
   * - Afeegir cèl·lula fotoelecèctrica per no regar si fa molt sol. (Mirar si la puc situar bé).
   * - La implamentació OTA no es pot realitzar ja que la memòria flash del dispositiu és massa petita. Mínim 64kb.
   * - Gestió d'Streams no implementada, ja que el mòdul Wifi només permet fer-ho d'un en un. Intentar fer-ho més endavant.
+  * - Falta la implementació de la BOYA del dipòsti per evitar obrir el relé i el motor si no hi ha aigua.
 */
 
 ////// Variables servidor //////

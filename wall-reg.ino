@@ -13,7 +13,7 @@
 // 450: Normal
 // 375: Bastant alt
 // 300: Molt alta
-// Nivells del sensor concret
+// Nivells del sensor segons datasheet
 // Més baix = més humit. 
 // 275 -> Molt humit. 
 // 600 -> completament sec.
@@ -76,11 +76,13 @@ void initialize_waterPump() {
 
 // Funció que activa el relé i comença a regar.
 void activateRelay(int i) {
+  // Aquí potser es tindria que afegir una comprobació per saber si ja està obert
   digitalWrite(pumpRelay[i], ON);
 }
 
 // Funció que desactiva el relé i deixa de regar.
 void deactivateRelay(int i) {
+  // Aquí potser es tindria que afegir un comprobació per saber si ja està parat
   digitalWrite(pumpRelay[i], OFF);
 }
 
@@ -123,6 +125,7 @@ void getallServerOptions() {
   }
 }
 
+// Aquesta funció retorna el temps que ha de sumar a la última comprovació per saber si ha de tornar a fer un check dels sensor i dades del servidor.
 long unsigned humidityTime() {
   return 60000 * freq; 
 }
@@ -151,6 +154,7 @@ void initialize_wifi_firebase() {
   Firebase.reconnectWiFi(true);
 }
 
+// Mostra errors relacionats amb la inicialització i enviament de dades
 void showError() {
   Serial.println("FAILED");
   Serial.println("REASON: " + fbdo.errorReason());
@@ -207,7 +211,7 @@ int getdataFreq() {
   }
 }
 
-// Aquesta funció retorna els valors configurats de nivell d'humitat. 
+// Funció que retorna els valors configurats de nivell d'humitat. 
 // La funció retorna un punter, ja que interessa recuperar les dades com un array.
 int * getdataNivellHumitat() {
   static int hl[4];

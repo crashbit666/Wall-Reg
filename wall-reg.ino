@@ -124,27 +124,20 @@ void testMoistureLevel() {
 
 // Aquest funció serveix per que si hi ha un relé obert (és a dir, està regant), no faci el següent test al cap de 5 segons i no el temps establert per servidor.
 // De no fer-ho es podria donar el cas que un relé estigués fins a 60 minuts funcionant.
-// Arreglat el return. He tret els returns del bucle for i en el seu lloc he posat un contador per saber si algun relé està obert.
+// Arreglat el return. Només retorna el true dins del bucle. El false sempre fora del bucle.
 bool checkOpenRelay() {
   int status = 0;
-  for(int x = 0; x < 4; x++) {
+  for(int i = 0; i < 4; i++) {
     Serial.print("RELAY ");
-    Serial.print(x);
-    Serial.print(" ");
-    if(digitalRead(pumpRelay[x]) == ON) {
-      Serial.println("ON");
-      status = status + 1;
-    } else {
-      Serial.println("OFF");
+    Serial.print(i);
+    if(digitalRead(pumpRelay[i]) == ON) {
+      Serial.println("INTERRUPCIÓ DEL BUCLE RELÉ OBERT");
+      return true;
     }
+    Serial.println(" ..... OK")
   }
-  if (status > 0) {
-    Serial.println("ALGUN RELÉ OBERT");
-    return true;
-  } else {
-    Serial.println("CAP RELÉ OBERT");
-    return false;
-  }
+  Serial.prinln("NO HI HA RELÉS OBERTS");
+  return false;
 }
 
 // Aquesta funció agafa els valors de les variables del servidor que posteriorment s'inicialitzaran al setup() i es recomprova segons la frequencia.

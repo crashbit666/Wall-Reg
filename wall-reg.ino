@@ -3,7 +3,23 @@
   * - Afeegir cèl·lula fotoelecèctrica per no regar si fa molt sol. (Mirar si la puc situar bé).
   * - La implamentació OTA no es pot realitzar ja que la memòria flash del dispositiu és massa petita. Mínim 64kb.
   * - Gestió d'Streams no implementada, ja que el mòdul Wifi només permet fer-ho d'un en un. Intentar fer-ho més endavant.
-  * - Falta la implementació de la BOYA del dipòsti per evitar obrir el relé i el motor si no hi ha aigua.
+  * - Falta la implementació de la BOYA del dipòsti per evitar obrir el relé i el motor si no hi ha aigua. Al final no serà una boia, si no un sensor de distància per ultra sons.
+  * - Seria interessant saber si es pot detectar el nivell de bateria per gestionar un mode sleep mitjançant alguna targeta o semblant.
+*/
+
+/* TEST:
+ *  Pendent:
+ *    - Test de les regles de firebase per saber si funcionen
+ *    - Test de le lògica del programa, depurar-lo per saber si actua correctament. Especialment el temps entre checks si el relé està obert. Més que res
+ *    s'hauria de mirar si ho fa correctament amb alguns relés oberts i altres tancats després de canvis en aquests.
+ *  Fet:
+ *    - Els valor dels sensors s'envien correctament a la bbdd realtime de Firebase.
+ *    - Els valors de Firebase es carrguen correctament al codi com a variables.
+ */
+
+ /* FET:
+  * - 
+  * - 
 */
 
 ////// Variables servidor //////

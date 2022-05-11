@@ -104,12 +104,19 @@ void deactivateRelay(int i) {
 
 // Comprova si els nivells d'humitat són els adecuats, de no ser així activa/desactiva el relé.
 void testMoistureLevel() {
+  Serial.print("Lectura sensor humitat ");
   for(int i = 0; i < 4; i++) {
+    Serial.print(i);
     moistureLevelSensor[i] = analogRead(moistureSensor[i]);
+    Serial.println(moistureLevelSensor[i]);
     sendData(i,moistureLevelSensor[i]); // Envia les dades a la bbdd firebase. Concretament
     if(moistureLevelSensor[i] > nivellHumitat[i]) {
+      Serial.print("Preparat per activar relay ");
+      Serial.println(i);
       activateRelay(i);
     } else {
+      Serial.print("Desactivant relay ");
+      Serial.println(i);
       deactivateRelay(i);
     }
   }
@@ -117,13 +124,26 @@ void testMoistureLevel() {
 
 // Aquest funció serveix per que si hi ha un relé obert (és a dir, està regant), no faci el següent test al cap de 5 segons i no el temps establert per servidor.
 // De no fer-ho es podria donar el cas que un relé estigués fins a 60 minuts funcionant.
+// Arreglat el return. He tret els returns del bucle for i en el seu lloc he posat un contador per saber si algun relé està obert.
 bool checkOpenRelay() {
-  for(int i = 0; i < 4; i++) {
-    if(digitalRead(pumpRelay[i]) == ON) {
-      return true;
+  int status = 0;
+  for(int x = 0; x < 4; x++) {
+    Serial.print("RELAY ");
+    Serial.print(x);
+    Serial.print(" ");
+    if(digitalRead(pumpRelay[x]) == ON) {
+      Serial.println("ON");
+      status = status + 1;
     } else {
-      return false;
+      Serial.println("OFF");
     }
+  }
+  if (status > 0) {
+    Serial.println("ALGUN RELÉ OBERT");
+    return true;
+  } else {
+    Serial.println("CAP RELÉ OBERT");
+    return false;
   }
 }
 
@@ -143,6 +163,8 @@ void getallServerOptions() {
 
 // Aquesta funció retorna el temps que ha de sumar a la última comprovació per saber si ha de tornar a fer un check dels sensor i dades del servidor.
 long unsigned humidityTime() {
+  Serial.print("freq = ");
+  Serial.println(freq);
   return 60000 * freq; 
 }
 

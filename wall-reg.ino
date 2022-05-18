@@ -134,9 +134,9 @@ bool checkOpenRelay() {
       Serial.println("INTERRUPCIÓ DEL BUCLE RELÉ OBERT");
       return true;
     }
-    Serial.println(" ..... OK")
+    Serial.println(" ..... OK");
   }
-  Serial.prinln("NO HI HA RELÉS OBERTS");
+  Serial.println("NO HI HA RELÉS OBERTS");
   return false;
 }
 

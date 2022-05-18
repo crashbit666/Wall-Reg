@@ -47,6 +47,12 @@
 #include "Firebase_Arduino_WiFiNINA.h"
 #include "arduino_secrets.h"
 
+#include <SoftwareSerial.h>
+
+SoftwareSerial mySerial(11,10); // RX, TX
+unsigned char data[4]={};
+float distance;
+
 // El path és important per llegir i enviar la informació a firebase. També creem un objecte de Firebase.
 String path="/torretes";
 FirebaseData fbdo;
@@ -88,6 +94,40 @@ void initialize_waterPump() {
     pinMode(moistureSensor[i], INPUT);
   }
   delay(500);
+}
+
+void initialize_distanceSensor() {
+  //Inicialitza el sensor de distància
+  mySerial.begin(9600);
+  delay(500);
+}
+
+void readDistance() {
+  do {
+    for(int i=0;i<4;i++) {
+      data[i]=mySerial.read();
+    }
+  }
+  
+  while(mySerial.read()==0xff);
+
+  mySerial.flush();
+
+  if(data[0]==0xff) {
+    int sum;
+    sum=(data[0]+data[1]+data[2])&0x00FF;
+    if(sum==data[3]) {
+      distance=(data[1]<<8)+data[2];
+      if(distance>30) {
+        Serial.print("distance=");
+        Serial.print(distance/10);
+        Serial.println("cm");
+      } else {
+        Serial.println("Below the lower limit");
+      }
+    } else Serial.println("ERROR");
+  }
+  delay(100);
 }
 
 // Funció que activa el relé i comença a regar.
@@ -268,6 +308,9 @@ void setup() {
 
   //Inicialitza el relé i el sensor d'humitat
   initialize_waterPump();
+
+  //Inicialitza el sensor de distància
+  initialize_distanceSensor();
 }
 
 // *********************************************************
@@ -276,6 +319,7 @@ void setup() {
 
 void loop() {
   timeActual = millis();
+  readDistance();
   if (timeActual > (timeLastExecute + humidityTime()) || timeLastExecute == 0 || checkOpenRelay()) {
     getallServerOptions();
     timeLastExecute = millis();

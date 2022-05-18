@@ -49,10 +49,6 @@
 
 #include <SoftwareSerial.h>
 
-SoftwareSerial mySerial(11,10); // RX, TX
-unsigned char data[4]={};
-float distance;
-
 // El path és important per llegir i enviar la informació a firebase. També creem un objecte de Firebase.
 String path="/torretes";
 FirebaseData fbdo;
@@ -96,13 +92,27 @@ void initialize_waterPump() {
   delay(500);
 }
 
+//Aquesta funció inicialitza el sensor de distància.
 void initialize_distanceSensor() {
   //Inicialitza el sensor de distància
   mySerial.begin(9600);
   delay(500);
 }
 
-void readDistance() {
+/* Aquesta funció retorna la distància mesurada pel sensor.
+La funció pot retirn tres tipus diferents de valors.
+  *  0: El dispòsit està a tope.
+  * -1: No s'ha pogut mesurar la distància.
+  * 30 <> 1000: La distància mesurada.
+He triat 1000, ja que no disposo de cap dipòsit superior i per tant la distància seria erronea.
+Pendent de mesurar el dipòsit i canviar el 1000mm per valor corresponent.
+*/
+float readDistance() {
+  //Inicialitzem les variables
+  SoftwareSerial mySerial(11,10); // RX, TX
+  unsigned char data[4]={};
+  float distance;
+  
   do {
     for(int i=0;i<4;i++) {
       data[i]=mySerial.read();
@@ -115,19 +125,24 @@ void readDistance() {
 
   if(data[0]==0xff) {
     int sum;
-    sum=(data[0]+data[1]+data[2])&0x00FF;
-    if(sum==data[3]) {
-      distance=(data[1]<<8)+data[2];
+    sum = (data[0]+data[1]+data[2])&0x00FF;
+    if (sum == data[3]) {
+      distance = (data[1]<<8)+data[2];
       if(distance>30) {
-        Serial.print("distance=");
+        return distance;
+        /* Serial.print("distance=");
         Serial.print(distance/10);
-        Serial.println("cm");
+        Serial.println("cm"); */
       } else {
-        Serial.println("Below the lower limit");
+        return 0;
+        // Serial.println("Dipòsit a tope");
       }
-    } else Serial.println("ERROR");
+    } else {
+      return -1;
+      // Serial.println("ERROR! No es pot detectar si hi ha aigua al dipòsit");
+    }
   }
-  delay(100);
+  //delay(100);
 }
 
 // Funció que activa el relé i comença a regar.
@@ -145,20 +160,24 @@ void deactivateRelay(int i) {
 // Comprova si els nivells d'humitat són els adecuats, de no ser així activa/desactiva el relé.
 void testMoistureLevel() {
   Serial.print("Lectura sensor humitat ");
-  for(int i = 0; i < 4; i++) {
-    Serial.print(i);
-    moistureLevelSensor[i] = analogRead(moistureSensor[i]);
-    Serial.println(moistureLevelSensor[i]);
-    sendData(i,moistureLevelSensor[i]); // Envia les dades a la bbdd firebase. Concretament
-    if(moistureLevelSensor[i] > nivellHumitat[i]) {
-      Serial.print("Preparat per activar relay ");
-      Serial.println(i);
-      activateRelay(i);
-    } else {
-      Serial.print("Desactivant relay ");
-      Serial.println(i);
-      deactivateRelay(i);
+  if (readDistance() != -1) {
+    for(int i = 0; i < 4; i++) {
+      Serial.print(i);
+      moistureLevelSensor[i] = analogRead(moistureSensor[i]);
+      Serial.println(moistureLevelSensor[i]);
+      sendData(i,moistureLevelSensor[i]); // Envia les dades a la bbdd firebase. Concretament
+      if(moistureLevelSensor[i] > nivellHumitat[i]) {
+        Serial.print("Preparat per activar relay ");
+        Serial.println(i);
+        activateRelay(i);
+      } else {
+        Serial.print("Desactivant relay ");
+        Serial.println(i);
+        deactivateRelay(i);
+      }
     }
+  } else if (readDistance() == -1) {
+    Serial.println("ERROR! No s'ha pogut comprovar si hi ha aigua al dipòsit");
   }
 }
 
@@ -319,7 +338,6 @@ void setup() {
 
 void loop() {
   timeActual = millis();
-  readDistance();
   if (timeActual > (timeLastExecute + humidityTime()) || timeLastExecute == 0 || checkOpenRelay()) {
     getallServerOptions();
     timeLastExecute = millis();

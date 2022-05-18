@@ -49,6 +49,10 @@
 
 #include <SoftwareSerial.h>
 
+// Aquesta variable es pel sensor de distància.
+SoftwareSerial mySerial(11,10); // RX, TX
+
+
 // El path és important per llegir i enviar la informació a firebase. També creem un objecte de Firebase.
 String path="/torretes";
 FirebaseData fbdo;
@@ -109,7 +113,6 @@ Pendent de mesurar el dipòsit i canviar el 1000mm per valor corresponent.
 */
 float readDistance() {
   //Inicialitzem les variables
-  SoftwareSerial mySerial(11,10); // RX, TX
   unsigned char data[4]={};
   float distance;
   

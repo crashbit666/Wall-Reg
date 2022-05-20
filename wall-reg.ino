@@ -46,12 +46,11 @@
 #include <SPI.h>
 #include "Firebase_Arduino_WiFiNINA.h"
 #include "arduino_secrets.h"
-
 #include <SoftwareSerial.h>
 
 // Aquesta variable es pel sensor de distància.
 SoftwareSerial mySerial(11,10); // RX, TX
-
+int diposit;
 
 // El path és important per llegir i enviar la informació a firebase. També creem un objecte de Firebase.
 String path="/torretes";
@@ -100,57 +99,103 @@ void initialize_waterPump() {
 void initialize_distanceSensor() {
   //Inicialitza el sensor de distància
   mySerial.begin(9600);
-  delay(500);
 }
 
 /* Aquesta funció retorna la distància mesurada pel sensor.
 La funció pot retirn tres tipus diferents de valors.
-  *  0: El dispòsit està a tope.
+  *  0: El dispòsit està massa buit.
+  *  1: El dispòsit està a tope.
   * -1: No s'ha pogut mesurar la distància.
-  * 30 <> 1000: La distància mesurada.
+  * 30 <> 400: La distància mesurada.
 He triat 1000, ja que no disposo de cap dipòsit superior i per tant la distància seria erronea.
 Pendent de mesurar el dipòsit i canviar el 1000mm per valor corresponent.
 */
-float readDistance() {
-  //Inicialitzem les variables
+int nivellDiposit() {
+
   unsigned char data[4]={};
-  float distance;
-  
+  int distance;
+
   do {
-    for(int i=0;i<4;i++) {
-      data[i]=mySerial.read();
+    for (int i=0; i<4; i++) {
+      data[i] = mySerial.read();
     }
-  }
-  
-  while(mySerial.read()==0xff);
+  } while (mySerial.read() == 0xff);
 
   mySerial.flush();
 
-  if(data[0]==0xff) {
+  if (data[0] == 0xff) {
     int sum;
     sum = (data[0]+data[1]+data[2])&0x00FF;
     if (sum == data[3]) {
       distance = (data[1]<<8)+data[2];
-      if(distance>30) {
+      if ((distance > 30) && (distance < 400)) {
+        Serial.print("distance=");
+        Serial.print(distance);
+        Serial.println("mm");
+        delay(100);
         return distance;
-        /* Serial.print("distance=");
-        Serial.print(distance/10);
-        Serial.println("cm"); */
-      } else {
+      } else if (distance >= 400) {
+        Serial.println("Empty tank");
+        delay(100);
         return 0;
-        // Serial.println("Dipòsit a tope");
+      } else {
+        Serial.println("Full tank");
+        delay(100);
+        return 1;
       }
     } else {
+      Serial.println("Checksum error");
+      delay(100);
       return -1;
-      // Serial.println("ERROR! No es pot detectar si hi ha aigua al dipòsit");
     }
   }
-  //delay(100);
+  delay(100);
+  return -2;
+}
+
+int mitjaDiposit() {
+  int suma = 0;
+  int error = 0;
+  int buit = 0;
+  int tmp = 0;
+  int count = 0;
+  int ple = 0;
+
+  for (int x = 0; x < 20; x++) {
+    tmp = nivellDiposit();
+    Serial.println("tmp: " + String(tmp));
+    if (tmp == -1) {
+      error += 1;
+    } else if (tmp == 0) {
+      buit += 1;
+    } else if (tmp == 1) {
+      ple += 1; 
+    } else if (tmp == -2) {
+      x -= 1; 
+    } else {
+      count += 1;
+      suma += tmp;
+    }
+  }
+  Serial.println("error: " + String(error));
+  Serial.println("buit: " + String(buit));
+  Serial.println("ple: " + String(ple));
+  Serial.println("count: " + String(count));
+  Serial.println("suma: " + String(suma));
+  Serial.println("mitja: " + String(suma/count));
+  if (error > 10) {
+    return -1;
+  } else if (buit > 10) {
+    return 0;
+  } else if (ple > 10) {
+    return 1; 
+  } else {
+    return suma/count;
+  }
 }
 
 // Funció que activa el relé i comença a regar.
 void activateRelay(int i) {
-  // Aquí potser es tindria que afegir una comprobació per saber si ja està obert
   digitalWrite(pumpRelay[i], ON);
 }
 
@@ -163,24 +208,24 @@ void deactivateRelay(int i) {
 // Comprova si els nivells d'humitat són els adecuats, de no ser així activa/desactiva el relé.
 void testMoistureLevel() {
   Serial.print("Lectura sensor humitat ");
-  if (readDistance() != -1) {
-    for(int i = 0; i < 4; i++) {
-      Serial.print(i);
-      moistureLevelSensor[i] = analogRead(moistureSensor[i]);
-      Serial.println(moistureLevelSensor[i]);
-      sendData(i,moistureLevelSensor[i]); // Envia les dades a la bbdd firebase. Concretament
-      if(moistureLevelSensor[i] > nivellHumitat[i]) {
-        Serial.print("Preparat per activar relay ");
-        Serial.println(i);
+  for(int i = 0; i < 4; i++) {
+    Serial.print(i);
+    moistureLevelSensor[i] = analogRead(moistureSensor[i]);
+    Serial.println(moistureLevelSensor[i]);
+    sendData(i,moistureLevelSensor[i]); // Envia les dades a la bbdd firebase. Concretament
+    if(moistureLevelSensor[i] > nivellHumitat[i]) {
+      Serial.print("Preparat per activar relay ");
+      Serial.println(i);
+      if ((diposit != -1) && (diposit != 0) && (diposit != -2)) {
         activateRelay(i);
       } else {
-        Serial.print("Desactivant relay ");
-        Serial.println(i);
-        deactivateRelay(i);
+        Serial.println("No s'ha pogut llegir el nivel d'aigua o el dipòsit està buit");
       }
+    } else {
+      Serial.print("Desactivant relay ");
+      Serial.println(i);
+      deactivateRelay(i);
     }
-  } else if (readDistance() == -1) {
-    Serial.println("ERROR! No s'ha pogut comprovar si hi ha aigua al dipòsit");
   }
 }
 
@@ -225,7 +270,7 @@ long unsigned humidityTime() {
 
 // La següent funció inicialitza els paràmetres del servidor firebase.
 void initialize_wifi_firebase() {
-  Serial.begin(115200);
+  Serial.begin(57600);
   delay(100);
   
   //Connecta a la Wifi
@@ -276,9 +321,16 @@ void showError() {
  *    Freqüencia de refresc (int 1 - 15 - 30 - 45 - 60 minuts) 
  *    Nivells d'humitat (int 600 - 525 - 450 - 375 - 300)
  *    weather (bool) (PENDENT IMPLEMENTAR)
+ *    Nivell del dipòsit.
  *      
  *   
 */
+
+void sendDiposit(int i) {
+  if (!Firebase.setInt(fbdo, path + "/Diposit", diposit)) {
+    showError();
+  }
+}
 
 // Aquesta funció envia les dades dels sensor d'humitat al servidor firebase. La primera part detecta la torreta per després poder treballar amb app mobil.
 void sendData(int i, int valor) {
@@ -319,7 +371,6 @@ int * getdataNivellHumitat() {
   return hl;
 }
 
-
 // *********************************************************
 // ********************** setup() **************************
 // *********************************************************
@@ -343,6 +394,8 @@ void loop() {
   timeActual = millis();
   if (timeActual > (timeLastExecute + humidityTime()) || timeLastExecute == 0 || checkOpenRelay()) {
     getallServerOptions();
+    diposit = mitjaDiposit();
+    sendDiposit(diposit);
     timeLastExecute = millis();
     testMoistureLevel();
   }

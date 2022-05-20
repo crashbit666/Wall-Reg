@@ -3,7 +3,6 @@
   * - Afeegir cèl·lula fotoelecèctrica per no regar si fa molt sol. (Mirar si la puc situar bé).
   * - La implamentació OTA no es pot realitzar ja que la memòria flash del dispositiu és massa petita. Mínim 64kb.
   * - Gestió d'Streams no implementada, ja que el mòdul Wifi només permet fer-ho d'un en un. Intentar fer-ho més endavant.
-  * - Falta la implementació de la BOYA del dipòsti per evitar obrir el relé i el motor si no hi ha aigua. Al final no serà una boia, si no un sensor de distància per ultra sons.
   * - Seria interessant saber si es pot detectar el nivell de bateria per gestionar un mode sleep mitjançant alguna targeta o semblant.
 */
 
@@ -15,6 +14,7 @@
  *  Fet:
  *    - Els valor dels sensors s'envien correctament a la bbdd realtime de Firebase.
  *    - Els valors de Firebase es carrguen correctament al codi com a variables.
+ *    - Implementació de la BOYA del dipòsti per evitar obrir el relé i el motor si no hi ha aigua. Al final no serà una boia, si no un sensor de distància per ultra sons.
  */
 
  /* FET:
@@ -107,8 +107,8 @@ La funció pot retirn tres tipus diferents de valors.
   *  1: El dispòsit està a tope.
   * -1: No s'ha pogut mesurar la distància.
   * 30 <> 400: La distància mesurada.
-He triat 1000, ja que no disposo de cap dipòsit superior i per tant la distància seria erronea.
-Pendent de mesurar el dipòsit i canviar el 1000mm per valor corresponent.
+He triat 400, ja que no disposo de cap dipòsit superior i per tant la distància seria erronea.
+Pendent de mesurar el dipòsit i canviar el 400mm per valor corresponent.
 */
 int nivellDiposit() {
 
@@ -153,6 +153,15 @@ int nivellDiposit() {
   return -2;
 }
 
+// Funció per mesurar la mitjana dels valors del sensor de distància (boya).
+// S'ha d'utilitzar aquesta funció ja que el sensor no funciona correctament si no es mesura de forma seguida.
+// Els valors que pot retornar el sensor son:
+// - 0: El dipòsit està massa buit.
+// - 1: El dipòsit està a tope.
+// - diancia: La distància mesurada.
+// - -1: Error al mesurar la distància.
+// - -2: No s'ha pogut mesurar la distància, ja que el sensor no ha facilitat cap dada.
+
 int mitjaDiposit() {
   int suma = 0;
   int error = 0;
@@ -171,7 +180,7 @@ int mitjaDiposit() {
     } else if (tmp == 1) {
       ple += 1; 
     } else if (tmp == -2) {
-      x -= 1; 
+      x -= 1;  // Augmenta el nombre de vegades que s'executa el for ja que no ha retornat valor
     } else {
       count += 1;
       suma += tmp;
@@ -216,7 +225,7 @@ void testMoistureLevel() {
     if(moistureLevelSensor[i] > nivellHumitat[i]) {
       Serial.print("Preparat per activar relay ");
       Serial.println(i);
-      if ((diposit != -1) && (diposit != 0) && (diposit != -2)) {
+      if ((diposit != -1) && (diposit != 0)) { // Si el dipòsit està buit no activa el relé
         activateRelay(i);
       } else {
         Serial.println("No s'ha pogut llegir el nivel d'aigua o el dipòsit està buit");

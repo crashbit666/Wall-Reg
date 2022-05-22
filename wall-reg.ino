@@ -229,6 +229,7 @@ void testMoistureLevel() {
         activateRelay(i);
       } else {
         Serial.println("No s'ha pogut llegir el nivel d'aigua o el dipòsit està buit");
+        deactivateRelay(i);
       }
     } else {
       Serial.print("Desactivant relay ");

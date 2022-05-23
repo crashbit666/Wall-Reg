@@ -67,7 +67,7 @@ unsigned long timeActual = 0;
 unsigned long timeLastExecute = 0;
 
 //Inicialitza la variable sense valor. Ja agafa el valor del servidor firebase.
-int freq;
+byte freq;
 
 // Inicialitza paràmetres del relé i els sensors.
 const int pumpRelay[4] = { 2, 3, 4, 5 };
@@ -87,7 +87,7 @@ int moistureLevelSensor[4];
 // Funció per inicialitzar relé i sensor d'humitat.
 void initialize_waterPump() {
   //Inicialitza el relé i el sensor d'humitat
-  for(int i = 0; i < 4; i++) {
+  for(byte i = 0; i < 4; i++) {
     pinMode(pumpRelay[i], OUTPUT);
     digitalWrite(pumpRelay[i], OFF);  
     pinMode(moistureSensor[i], INPUT);
@@ -116,7 +116,7 @@ int nivellDiposit() {
   int distance;
 
   do {
-    for (int i=0; i<4; i++) {
+    for (byte i=0; i<4; i++) {
       data[i] = mySerial.read();
     }
   } while (mySerial.read() == 0xff);
@@ -158,17 +158,17 @@ int nivellDiposit() {
 // Els valors que pot retornar el sensor son:
 // - 0: El dipòsit està massa buit.
 // - 1: El dipòsit està a tope.
-// - diancia: La distància mesurada.
+// - distancia: La distància mesurada.
 // - -1: Error al mesurar la distància.
 // - -2: No s'ha pogut mesurar la distància, ja que el sensor no ha facilitat cap dada.
 
 int mitjaDiposit() {
   int suma = 0;
-  int error = 0;
-  int buit = 0;
+  byte error = 0;
+  byte buit = 0;
   int tmp = 0;
-  int count = 0;
-  int ple = 0;
+  byte count = 0;
+  byte ple = 0;
 
   for (int x = 0; x < 20; x++) {
     tmp = nivellDiposit();
@@ -217,7 +217,7 @@ void deactivateRelay(int i) {
 // Comprova si els nivells d'humitat són els adecuats, de no ser així activa/desactiva el relé.
 void testMoistureLevel() {
   Serial.print("Lectura sensor humitat ");
-  for(int i = 0; i < 4; i++) {
+  for(byte i = 0; i < 4; i++) {
     Serial.print(i);
     moistureLevelSensor[i] = analogRead(moistureSensor[i]);
     Serial.println(moistureLevelSensor[i]);
@@ -229,6 +229,7 @@ void testMoistureLevel() {
         activateRelay(i);
       } else {
         Serial.println("No s'ha pogut llegir el nivel d'aigua o el dipòsit està buit");
+        // Desactivo el relé, ja que si es buida el dipòsit mentre el relé està obert s'ha d'apagar
         deactivateRelay(i);
       }
     } else {
@@ -243,8 +244,8 @@ void testMoistureLevel() {
 // De no fer-ho es podria donar el cas que un relé estigués fins a 60 minuts funcionant.
 // Arreglat el return. Només retorna el true dins del bucle. El false sempre fora del bucle.
 bool checkOpenRelay() {
-  int status = 0;
-  for(int i = 0; i < 4; i++) {
+  //int status = 0;
+  for(byte i = 0; i < 4; i++) {
     Serial.print("RELAY ");
     Serial.print(i);
     if(digitalRead(pumpRelay[i]) == ON) {
@@ -343,7 +344,7 @@ void sendDiposit(int i) {
 }
 
 // Aquesta funció envia les dades dels sensor d'humitat al servidor firebase. La primera part detecta la torreta per després poder treballar amb app mobil.
-void sendData(int i, int valor) {
+void sendData(byte i, int valor) {
   int torreta;
   if (i<2) {
     torreta = 1;
@@ -356,9 +357,9 @@ void sendData(int i, int valor) {
 }
 
 // Aquesta funció retorna les dades de frequencia configurada al servidor.
-int getdataFreq() {
+byte getdataFreq() {
   if (Firebase.getInt(fbdo, path + "/frecuencia")) {
-    int fq = fbdo.intData();
+    byte fq = fbdo.intData();
     fbdo.clear();
     return fq;
   } else {
@@ -370,7 +371,7 @@ int getdataFreq() {
 // La funció retorna un punter, ja que interessa recuperar les dades com un array.
 int * getdataNivellHumitat() {
   static int hl[4];
-  for (int i = 0; i < 4; i++) {
+  for (byte i = 0; i < 4; i++) {
     if (Firebase.getInt(fbdo, path + "/Config_Humidity/" + i)) {
       hl[i] = fbdo.intData();
     } else {

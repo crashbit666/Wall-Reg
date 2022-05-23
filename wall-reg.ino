@@ -129,22 +129,22 @@ int nivellDiposit() {
     if (sum == data[3]) {
       distance = (data[1]<<8)+data[2];
       if ((distance > 30) && (distance < 400)) {
-        Serial.print("distance=");
-        Serial.print(distance);
-        Serial.println("mm");
+        //Serial.print("distance=");
+        //Serial.print(distance);
+        //Serial.println("mm");
         delay(100);
         return distance;
       } else if (distance >= 400) {
-        Serial.println("Empty tank");
+        //Serial.println("Empty tank");
         delay(100);
         return 0;
       } else {
-        Serial.println("Full tank");
+        //Serial.println("Full tank");
         delay(100);
         return 1;
       }
     } else {
-      Serial.println("Checksum error");
+      //Serial.println("Checksum error");
       delay(100);
       return -1;
     }
@@ -172,7 +172,7 @@ int mitjaDiposit() {
 
   for (int x = 0; x < 20; x++) {
     tmp = nivellDiposit();
-    Serial.println("tmp: " + String(tmp));
+    //Serial.println("tmp: " + String(tmp));
     if (tmp == -1) {
       error += 1;
     } else if (tmp == 0) {
@@ -186,12 +186,12 @@ int mitjaDiposit() {
       suma += tmp;
     }
   }
-  Serial.println("error: " + String(error));
-  Serial.println("buit: " + String(buit));
-  Serial.println("ple: " + String(ple));
-  Serial.println("count: " + String(count));
-  Serial.println("suma: " + String(suma));
-  Serial.println("mitja: " + String(suma/count));
+  //Serial.println("error: " + String(error));
+  //Serial.println("buit: " + String(buit));
+  //Serial.println("ple: " + String(ple));
+  //Serial.println("count: " + String(count));
+  //Serial.println("suma: " + String(suma));
+  //Serial.println("mitja: " + String(suma/count));
   if (error > 10) {
     return -1;
   } else if (buit > 10) {
@@ -216,25 +216,25 @@ void deactivateRelay(int i) {
 
 // Comprova si els nivells d'humitat són els adecuats, de no ser així activa/desactiva el relé.
 void testMoistureLevel() {
-  Serial.print("Lectura sensor humitat ");
+  //Serial.print("Lectura sensor humitat ");
   for(byte i = 0; i < 4; i++) {
-    Serial.print(i);
+    //Serial.print(i);
     moistureLevelSensor[i] = analogRead(moistureSensor[i]);
-    Serial.println(moistureLevelSensor[i]);
+    //Serial.println(moistureLevelSensor[i]);
     sendData(i,moistureLevelSensor[i]); // Envia les dades a la bbdd firebase. Concretament
     if(moistureLevelSensor[i] > nivellHumitat[i]) {
-      Serial.print("Preparat per activar relay ");
-      Serial.println(i);
+      //Serial.print("Preparat per activar relay ");
+      //Serial.println(i);
       if ((diposit != -1) && (diposit != 0)) { // Si el dipòsit està buit no activa el relé
         activateRelay(i);
       } else {
-        Serial.println("No s'ha pogut llegir el nivel d'aigua o el dipòsit està buit");
+        //Serial.println("No s'ha pogut llegir el nivel d'aigua o el dipòsit està buit");
         // Desactivo el relé, ja que si es buida el dipòsit mentre el relé està obert s'ha d'apagar
         deactivateRelay(i);
       }
     } else {
-      Serial.print("Desactivant relay ");
-      Serial.println(i);
+      //Serial.print("Desactivant relay ");
+      //Serial.println(i);
       deactivateRelay(i);
     }
   }
@@ -246,15 +246,15 @@ void testMoistureLevel() {
 bool checkOpenRelay() {
   //int status = 0;
   for(byte i = 0; i < 4; i++) {
-    Serial.print("RELAY ");
-    Serial.print(i);
+    //Serial.print("RELAY ");
+    //Serial.print(i);
     if(digitalRead(pumpRelay[i]) == ON) {
-      Serial.println("INTERRUPCIÓ DEL BUCLE RELÉ OBERT");
+      //Serial.println("INTERRUPCIÓ DEL BUCLE RELÉ OBERT");
       return true;
     }
-    Serial.println(" ..... OK");
+    //Serial.println(" ..... OK");
   }
-  Serial.println("NO HI HA RELÉS OBERTS");
+  //Serial.println("NO HI HA RELÉS OBERTS");
   return false;
 }
 
@@ -274,29 +274,29 @@ void getallServerOptions() {
 
 // Aquesta funció retorna el temps que ha de sumar a la última comprovació per saber si ha de tornar a fer un check dels sensor i dades del servidor.
 long unsigned humidityTime() {
-  Serial.print("freq = ");
-  Serial.println(freq);
+  //Serial.print("freq = ");
+  //Serial.println(freq);
   return 60000 * freq; 
 }
 
 // La següent funció inicialitza els paràmetres del servidor firebase.
 void initialize_wifi_firebase() {
-  Serial.begin(57600);
-  delay(100);
+  //Serial.begin(57600);
+  //delay(100);
   
   //Connecta a la Wifi
-  Serial.print("Connectant a la Wi-Fi");
+  //Serial.print("Connectant a la Wi-Fi");
   int status = WL_IDLE_STATUS;
   while (status != WL_CONNECTED)
   {
     status = WiFi.begin(ssidf, passf);
-    Serial.print(".");
+    //Serial.print(".");
     delay(100);
   }
-  Serial.println();
-  Serial.print("Connectat amb IP: ");
-  Serial.println(WiFi.localIP());
-  Serial.println();
+  //Serial.println();
+  //Serial.print("Connectat amb IP: ");
+  //Serial.println(WiFi.localIP());
+  //Serial.println();
   
   //Dades d'autentificació
   Firebase.begin(fbhost, dbsf, ssidf, passf);
@@ -305,10 +305,10 @@ void initialize_wifi_firebase() {
 
 // Mostra errors relacionats amb la inicialització i enviament de dades
 void showError() {
-  Serial.println("FAILED");
-  Serial.println("REASON: " + fbdo.errorReason());
-  Serial.println("=================");
-  Serial.println();
+  //Serial.println("FAILED");
+  //Serial.println("REASON: " + fbdo.errorReason());
+  //Serial.println("=================");
+  //Serial.println();
 }
 
 /* Estructura de la bbdd de firebase 

@@ -1,9 +1,9 @@
 /* TODO:
   * - Afegir opció de saber el temps que farà. Per tal de poder predir si fa falta regar o en unes hores es posarà a ploure.
   * - Afeegir cèl·lula fotoelecèctrica per no regar si fa molt sol. (Mirar si la puc situar bé).
-  * - La implamentació OTA no es pot realitzar ja que la memòria flash del dispositiu és massa petita. Mínim 64kb.
-  * - Gestió d'Streams no implementada, ja que el mòdul Wifi només permet fer-ho d'un en un. Intentar fer-ho més endavant.
   * - Seria interessant saber si es pot detectar el nivell de bateria per gestionar un mode sleep mitjançant alguna targeta o semblant.
+  * - Protecció en cas de que el relé s'activi i la humitat no puji en un temps concret. (1 minuts aprox.).
+  * - Gestió de l'energia per estalviar energia.
 */
 
 /* TEST:
@@ -69,7 +69,7 @@ unsigned long timeLastExecute = 0;
 //Inicialitza la variable sense valor. Ja agafa el valor del servidor firebase.
 byte freq;
 
-// Inicialitza paràmetres del relé i els sensors.
+// Inicialitza paràmetres del relé i els sensors. PINS dels relés i del sensors d'humitat.
 const int pumpRelay[4] = { 2, 3, 4, 5 };
 const int moistureSensor[4] = { A0, A1, A2, A3 };
 const int ON = LOW;

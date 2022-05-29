@@ -2,7 +2,7 @@
   * - Afegir opció de saber el temps que farà. Per tal de poder predir si fa falta regar o en unes hores es posarà a ploure.
   * - Afeegir cèl·lula fotoelecèctrica per no regar si fa molt sol. (Mirar si la puc situar bé).
   * - Seria interessant saber si es pot detectar el nivell de bateria per gestionar un mode sleep mitjançant alguna targeta o semblant.
-  * - Protecció en cas de que el relé s'activi i la humitat no puji en un temps concret. (1 minuts aprox.).
+  * - Afegir protecció en cas de que el relé s'activi i la humitat no puji en un temps concret. (1 minuts aprox.).
   * - Gestió de l'energia per estalviar energia.
 */
 

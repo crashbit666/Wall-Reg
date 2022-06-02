@@ -312,7 +312,7 @@ void showError() {
   Serial.println("=================");
   Serial.println();
   //Aquí desactivo els relés per evitar que problemes de conexió puguien deixar el reg permanentment engegat.
-  for (i=0; i<4; i++) {
+  for (byte i=0; i<4; i++) {
     deactivateRelay(i);
   }
 }
@@ -395,6 +395,16 @@ int * getdataNivellHumitat() {
   return hl;
 }
 
+//Aquesta funció intenta saber el temps que ha passat desde la última actualització de les dades del servidor.
+void compareUpandExecuteTime(unsigned long actual, unsigned long execute) {
+  int diff = (actual - execute) / 60000 ;      // En teoria transformem els millisegons en minuts
+  if (diff > freq) {  // Si la diferencia es mes gran que la frecuencia, vol dir que hi ha algun error. En aquest moment intenta pujar el valor a firebase.
+    if (!Firebase.setInt(fbdo, path + "/actualitzacio", diff)) {
+      showError();
+    }  
+  }
+}
+
 // *********************************************************
 // ********************** setup() **************************
 // *********************************************************
@@ -416,6 +426,7 @@ void setup() {
 
 void loop() {
   timeActual = millis();
+  compareUpandExecuteTime(timeActual, timeLastExecute);
   if (timeActual > (timeLastExecute + humidityTime()) || timeLastExecute == 0 || checkOpenRelay()) {
     getallServerOptions();
     diposit = mitjaDiposit();

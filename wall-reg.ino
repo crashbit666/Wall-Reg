@@ -22,17 +22,21 @@
   * - 
 */
 
+// IMPLEMETACIONS:
+// - Firebase realtime database: https://github.com/mobizt/Firebase-Arduino-WiFiNINA
+
+
 ////// Variables servidor //////
 // Nivells humitat: (humidityLevel)
-// 600: Molt Baixa
-// 525: Bastant baix
-// 450: Normal
-// 375: Bastant alt
-// 300: Molt alta
+// 500: Molt Baixa
+// 425: Bastant baix
+// 350: Normal
+// 275: Bastant alt
+// 200: Molt alta
 // Nivells del sensor segons datasheet
 // Més baix = més humit. 
-// 275 -> Molt humit. 
-// 600 -> completament sec.
+// 100 -> Molt humit. 
+// 700 -> completament sec.
 // -----
 // Frecuència de test dels sensors: (freq)
 // 1: Molt Alta -> Cada 60 segons
@@ -65,6 +69,7 @@ char fbhost[] = SECRET_FBHOST;
 // Variables per el temps que porta executant-se el programa i el temps des de la última execució de les medicions.
 unsigned long timeActual = 0;
 unsigned long timeLastExecute = 0;
+unsigned long contador = 0;
 
 //Inicialitza la variable sense valor. Ja agafa el valor del servidor firebase.
 byte freq;
@@ -373,7 +378,7 @@ void sendData(byte i, int valor) {
 byte getdataFreq() {
   if (Firebase.getInt(fbdo, path + "/frecuencia")) {
     byte fq = fbdo.intData();
-    fdbo.clear();
+    //fbdo.clear();
     return fq;
   } else {
     showError();
@@ -391,18 +396,15 @@ int * getdataNivellHumitat() {
       showError();
     }
   }
-  fdbo.clear();
+  //fbdo.clear();
   return hl;
 }
 
-//Aquesta funció intenta saber el temps que ha passat desde la última actualització de les dades del servidor.
-void compareUpandExecuteTime(unsigned long actual, unsigned long execute) {
-  int diff = (actual - execute) / 60000 ;      // En teoria transformem els millisegons en minuts
-  if (diff > freq) {  // Si la diferencia es mes gran que la frecuencia, vol dir que hi ha algun error. En aquest moment intenta pujar el valor a firebase.
-    if (!Firebase.setInt(fbdo, path + "/actualitzacio", diff)) {
-      showError();
-    }  
-  }
+//Aquesta funció es un contador. L'utilitzo per depurar el programa desde firebase. Aquí veig un valor que canvia en cada ietraccio del if principal.
+void iterations(unsigned long i) {
+  if (!Firebase.setDouble(fbdo, path + "/contador", i)) {
+    showError();
+  }  
 }
 
 // *********************************************************
@@ -426,12 +428,13 @@ void setup() {
 
 void loop() {
   timeActual = millis();
-  compareUpandExecuteTime(timeActual, timeLastExecute);
   if (timeActual > (timeLastExecute + humidityTime()) || timeLastExecute == 0 || checkOpenRelay()) {
+    iterations(contador);
     getallServerOptions();
     diposit = mitjaDiposit();
     sendDiposit(diposit);
     timeLastExecute = millis();
     testMoistureLevel();
+    contador += 1;
   }
 }

@@ -373,7 +373,7 @@ void sendData(byte i, int valor) {
 byte getdataFreq() {
   if (Firebase.getInt(fbdo, path + "/frecuencia")) {
     byte fq = fbdo.intData();
-    fbdo.clear();
+    //fbdo.clear();
     return fq;
   } else {
     showError();
@@ -391,7 +391,7 @@ int * getdataNivellHumitat() {
       showError();
     }
   }
-  fbdo.clear();
+  //fbdo.clear();
   return hl;
 }
 

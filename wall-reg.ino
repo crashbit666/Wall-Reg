@@ -12,14 +12,12 @@
  *    - Test de le lògica del programa, depurar-lo per saber si actua correctament. Especialment el temps entre checks si el relé està obert. Més que res
  *    s'hauria de mirar si ho fa correctament amb alguns relés oberts i altres tancats després de canvis en aquests.
  *  Fet:
- *    - Els valor dels sensors s'envien correctament a la bbdd realtime de Firebase.
- *    - Els valors de Firebase es carrguen correctament al codi com a variables.
- *    - Implementació de la BOYA del dipòsti per evitar obrir el relé i el motor si no hi ha aigua. Al final no serà una boia, si no un sensor de distància per ultra sons.
  */
 
  /* FET:
-  * - 
-  * - 
+  * - Els valor dels sensors s'envien correctament a la bbdd realtime de Firebase.
+  * - Els valors de Firebase es carrguen correctament al codi com a variables.
+  * - Implementació del sensor de distància del dipòsit.
 */
 
 // IMPLEMETACIONS:

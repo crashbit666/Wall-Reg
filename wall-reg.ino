@@ -5,7 +5,7 @@
   * - Afegir protecció en cas de que el relé s'activi i la humitat no puji en un temps concret. (1 minuts aprox.).
   * - Gestió de l'energia per estalviar energia.
   * - Deshardcodificar les següents variables:
-  *   - Nombre de sensors (4)
+  * - Nombre de sensors (4)
 */
 
 /* TEST:
@@ -225,7 +225,6 @@ int mitjaDiposit() {
 void activateRelay(int i) {
   digitalWrite(pumpRelay[i], ON);
   setWaterPumpStatus(i, true);
-  registerLastWattering(i);
 }
 
 // Funció que desactiva el relé i deixa de regar.
@@ -243,7 +242,9 @@ void testMoistureLevel() {
     moistureLevelSensor[i] = analogRead(moistureSensor[i]);
     Serial.println(moistureLevelSensor[i]);
     sendData(i,moistureLevelSensor[i]); // Envia les dades a la bbdd firebase. Concretament
-	Serial.println("Informació sensor núm. " + i + " moistureLevelSensor: " + moistureLevelSensor[i] + " nivellHumitat " + nivellHumitat[i]);
+    // Afegit per Figuls
+    //Serial.println("Informació sensor núm. " + i + " moistureLevelSensor: " + moistureLevelSensor[i] + " nivellHumitat " + nivellHumitat[i]);
+    // ---------------------------------------------------------------
     if(moistureLevelSensor[i] > nivellHumitat[i]) {
       Serial.print("Preparat per activar relay ");
       Serial.println(i);
@@ -363,7 +364,7 @@ void showError() {
  *   
 */
 void setWaterPumpStatus(byte i, bool status) {
-
+  if (!Firebase.setBool(fbdo, path + "/bombes/" +i, status)) {
     showError();
   }
 }
@@ -476,6 +477,24 @@ void registerLastWattering(int i) {
   }
 }
 
+/*
+// Aquesta funció informa si estem en mode de depuració .
+byte getDebugMode() {
+  if (Firebase.getInt(fbdo, path + "/debugMode")) {
+    byte dm = fbdo.intData();
+    fbdo.clear();
+    return dm;
+  } else {
+    showError();
+  }
+}
+void log(string sMessage){
+  if () {
+    Firebase.pushString(fbdo, path + "/bombes/" +i, status)
+  }
+}
+*/
+
 // *********************************************************
 // ********************** setup() **************************
 // *********************************************************
@@ -490,30 +509,10 @@ void setup() {
   //Inicialitza el sensor de distància
   initialize_distanceSensor();
 
-  //Inicialitza el port UDP per NTP
+   //Inicialitza el port UDP per NTP
   Udp.begin(localPort);
 }
-/*
 
-// Aquesta funció informa si estem en mode de depuració .
-byte getDebugMode() {
-  if (Firebase.getInt(fbdo, path + "/debugMode")) {
-    byte dm = fbdo.intData();
-    fbdo.clear();
-    return dm;
-  } else {
-    showError();
-  }
-}
-
-
-
-void log(string sMessage){
-  if () {
-    Firebase.pushString(fbdo, path + "/bombes/" +i, status)
-  }
-}
-*/
 // *********************************************************
 // ********************** loop() ***************************
 // *********************************************************

@@ -346,7 +346,7 @@ void showError() {
  *   
 */
 void setWaterPumpStatus(byte i, bool status) {
-  if (!Firebase.setBool(fbdo, path + "/bombes/" +i, status)) {
+
     showError();
   }
 }
@@ -422,7 +422,27 @@ void setup() {
   //Inicialitza el sensor de distància
   initialize_distanceSensor();
 }
+/*
 
+// Aquesta funció informa si estem en mode de depuració .
+byte getDebugMode() {
+  if (Firebase.getInt(fbdo, path + "/debugMode")) {
+    byte dm = fbdo.intData();
+    fbdo.clear();
+    return dm;
+  } else {
+    showError();
+  }
+}
+
+
+
+void log(string sMessage){
+  if () {
+    Firebase.pushString(fbdo, path + "/bombes/" +i, status)
+  }
+}
+*/
 // *********************************************************
 // ********************** loop() ***************************
 // *********************************************************

@@ -225,6 +225,7 @@ int mitjaDiposit() {
 void activateRelay(int i) {
   digitalWrite(pumpRelay[i], ON);
   setWaterPumpStatus(i, true);
+  registerLastWattering(i);
 }
 
 // Funció que desactiva el relé i deixa de regar.

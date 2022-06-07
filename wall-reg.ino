@@ -4,6 +4,8 @@
   * - Seria interessant saber si es pot detectar el nivell de bateria per gestionar un mode sleep mitjançant alguna targeta o semblant.
   * - Afegir protecció en cas de que el relé s'activi i la humitat no puji en un temps concret. (1 minuts aprox.).
   * - Gestió de l'energia per estalviar energia.
+  * - Deshardcodificar les següents variables:
+  *   - Nombre de sensors (4)
 */
 
 /* TEST:
@@ -233,7 +235,7 @@ void deactivateRelay(int i) {
   setWaterPumpStatus(i, false);
 }
 
-// Comprova si els nivells d'humitat són els adecuats, de no ser així activa/desactiva el relé.
+// Comprova si els nivells d'humitat són els adequats, de no ser així activa/desactiva el relé.
 void testMoistureLevel() {
   Serial.print("Lectura sensor humitat ");
   for(byte i = 0; i < 4; i++) {
@@ -241,6 +243,7 @@ void testMoistureLevel() {
     moistureLevelSensor[i] = analogRead(moistureSensor[i]);
     Serial.println(moistureLevelSensor[i]);
     sendData(i,moistureLevelSensor[i]); // Envia les dades a la bbdd firebase. Concretament
+	Serial.println("Informació sensor núm. " + i + " moistureLevelSensor: " + moistureLevelSensor[i] + " nivellHumitat " + nivellHumitat[i]);
     if(moistureLevelSensor[i] > nivellHumitat[i]) {
       Serial.print("Preparat per activar relay ");
       Serial.println(i);
@@ -360,7 +363,7 @@ void showError() {
  *   
 */
 void setWaterPumpStatus(byte i, bool status) {
-  if (!Firebase.setBool(fbdo, path + "/bombes/" +i, status)) {
+
     showError();
   }
 }
@@ -490,7 +493,27 @@ void setup() {
   //Inicialitza el port UDP per NTP
   Udp.begin(localPort);
 }
+/*
 
+// Aquesta funció informa si estem en mode de depuració .
+byte getDebugMode() {
+  if (Firebase.getInt(fbdo, path + "/debugMode")) {
+    byte dm = fbdo.intData();
+    fbdo.clear();
+    return dm;
+  } else {
+    showError();
+  }
+}
+
+
+
+void log(string sMessage){
+  if () {
+    Firebase.pushString(fbdo, path + "/bombes/" +i, status)
+  }
+}
+*/
 // *********************************************************
 // ********************** loop() ***************************
 // *********************************************************

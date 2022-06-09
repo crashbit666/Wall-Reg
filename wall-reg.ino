@@ -124,7 +124,7 @@ La funció pot retirn tres tipus diferents de valors.
   *  1: El dispòsit està a tope.
   * -1: No s'ha pogut mesurar la distància.
   * 30 <> 400: La distància mesurada.
-He triat 200, ja que no disposo de cap dipòsit superior i per tant la distància seria erronea.
+He triat 270, ja que no disposo de cap dipòsit superior i per tant la distància seria erronea.
 Pendent de mesurar el dipòsit i canviar el 400mm per valor corresponent.
 */
 int nivellDiposit() {
@@ -145,7 +145,7 @@ int nivellDiposit() {
     sum = (data[0]+data[1]+data[2])&0x00FF;
     if (sum == data[3]) {
       distance = (data[1]<<8)+data[2];
-      if ((distance > 30) && (distance < 200)) {
+      if ((distance > 30) && (distance < 270)) {
         //Serial.print("distance=");
         //Serial.print(distance);
         //Serial.println("mm");

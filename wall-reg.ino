@@ -5,7 +5,7 @@
   * - Afegir protecció en cas de que el relé s'activi i la humitat no puji en un temps concret. (1 minuts aprox.).
   * - Gestió de l'energia per estalviar energia.
   * - Deshardcodificar les següents variables:
-  * - Nombre de sensors (4)
+  * - Nombre de sensors (4), pero s'ha de hardcodificar si o si el PIN on està connectat el sensor.
 */
 
 /* TEST:
@@ -28,11 +28,11 @@
 
 ////// Variables servidor //////
 // Nivells humitat: (humidityLevel)
-// 500: Molt Baixa
-// 425: Bastant baix
-// 350: Normal
-// 275: Bastant alt
-// 200: Molt alta
+// 500: Sec
+// 425: Molt Baix
+// 350: Bastant Baix
+// 275: Normal
+// 200: Bastant alt
 // Nivells del sensor segons datasheet
 // Més baix = més humit. 
 // 100 -> Molt humit. 

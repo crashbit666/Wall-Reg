@@ -332,7 +332,8 @@ void showError() {
   //Serial.println("REASON: " + fbdo.errorReason());
   //Serial.println("=================");
   //Serial.println();
-  //Aquí desactivo els relés per evitar que problemes de conexió puguien deixar el reg permanentment engegat.
+
+  //Aquí desactivo els relés per evitar que problemes de conexió puguin deixar el reg permanentment engegat.
   for (byte i=0; i<4; i++) {
     deactivateRelay(i);
   }
@@ -441,8 +442,8 @@ void getDate() {
   }
 }
 
-// send an NTP request to the time server at the given address
-unsigned long sendNTPpacket(IPAddress& address) {
+  // send an NTP request to the time server at the given address
+  unsigned long sendNTPpacket(IPAddress& address) {
   ////Serial.println("1");
   // set all bytes in the buffer to 0
   memset(packetBuffer, 0, NTP_PACKET_SIZE);
@@ -475,6 +476,7 @@ void registerLastWattering(int i) {
   getDate();
   if (!Firebase.setString(fbdo, path + "/lastWattering", hour + ":" + minutes + ":" + seconds + " | torreta-> " + i)) {
     showError();
+    //
   }
 }
 

@@ -52,7 +52,7 @@
 #include "arduino_secrets.h"
 #include <SoftwareSerial.h>
 #include <WiFiUdp.h>
-
+#include <TaskScheduler.h>
 
 // Variables per poder agafar la data actual
 unsigned int localPort = 2390;      // Port local on escoltar els paquets UDP
@@ -225,6 +225,7 @@ void activateRelay(int i) {
   digitalWrite(pumpRelay[i], ON);
   setWaterPumpStatus(i, true);
   registerLastWattering(i);
+  delay(5000);
 }
 
 // Funció que desactiva el relé i deixa de regar.
@@ -237,7 +238,8 @@ void deactivateRelay(int i) {
 // Comprova si els nivells d'humitat són els adequats, de no ser així activa/desactiva el relé.
 void testMoistureLevel() {
   //Serial.print("Lectura sensor humitat ");
-  for(byte i = 0; i < 4; i++) {
+  byte i = 0;
+  while (i<4) {
     //Serial.print(i);
     moistureLevelSensor[i] = analogRead(moistureSensor[i]);
     //Serial.println(moistureLevelSensor[i]);
@@ -248,8 +250,9 @@ void testMoistureLevel() {
     if(moistureLevelSensor[i] > nivellHumitat[i]) {
       //Serial.print("Preparat per activar relay ");
       //Serial.println(i);
-      if ((diposit != -1) && (diposit != 0)) { // Si el dipòsit està buit no activa el relé
+      if ((diposit != -1) && (diposit != 0) && (diposit != 1)) { // Si el dipòsit està buit no activa el relé
         activateRelay(i);
+        i--;
       } else {
         //Serial.println("No s'ha pogut llegir el nivel d'aigua o el dipòsit està buit");
         // Desactivo el relé, ja que si es buida el dipòsit mentre el relé està obert s'ha d'apagar
@@ -260,6 +263,7 @@ void testMoistureLevel() {
       //Serial.println(i);
       deactivateRelay(i);
     }
+    i++;
   }
 }
 
@@ -480,23 +484,9 @@ void registerLastWattering(int i) {
   }
 }
 
-/*
-// Aquesta funció informa si estem en mode de depuració .
-byte getDebugMode() {
-  if (Firebase.getInt(fbdo, path + "/debugMode")) {
-    byte dm = fbdo.intData();
-    fbdo.clear();
-    return dm;
-  } else {
-    showError();
-  }
-}
-void log(string sMessage){
-  if () {
-    Firebase.pushString(fbdo, path + "/bombes/" +i, status)
-  }
-}
-*/
+byte tsfreq = getdataFreq();
+Task tMeasure (tsfreq*60, TASK_FOREVER, &testMoistureLevel);
+Scheduler taskManager;
 
 // *********************************************************
 // ********************** setup() **************************
@@ -514,6 +504,11 @@ void setup() {
 
    //Inicialitza el port UDP per NTP
   Udp.begin(localPort);
+
+  //Inicialitza el taskscheduler
+  taskManager.init();
+  taskManager.addTask(tMeasure);
+  tMeasure.enable();
 }
 
 // *********************************************************
@@ -521,13 +516,8 @@ void setup() {
 // *********************************************************
 
 void loop() {
-  timeActual = millis();
-  if (timeActual > (timeLastExecute + humidityTime()) || timeLastExecute == 0 || checkOpenRelay()) {
-    lastCheck();
-    getallServerOptions();
-    diposit = mitjaDiposit();
-    sendDiposit(diposit);
-    timeLastExecute = millis();
-    testMoistureLevel();
-  }
+  getallServerOptions();
+  //diposit = mitjaDiposit();
+  sendDiposit(mitjaDiposit());
+  taskManager.execute();
 }

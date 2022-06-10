@@ -24,6 +24,7 @@
 
 // IMPLEMETACIONS:
 // - Firebase realtime database: https://github.com/mobizt/Firebase-Arduino-WiFiNINA
+// - TaskScheduler: https://github.com/arkhipenko/TaskScheduler/wiki/Implementation-scenarios-and-ideas/#1-event-driven-programming
 
 
 ////// Variables servidor //////
@@ -262,6 +263,9 @@ void testMoistureLevel() {
       //Serial.print("Desactivant relay ");
       //Serial.println(i);
       deactivateRelay(i);
+    }
+    if (i == 3) {
+      sendData(i,moistureLevelSensor[i]); // Envia les dades a la bbdd firebase. Reenvia si es la ultima iteracció per si s'ha activat el relé.
     }
     i++;
   }

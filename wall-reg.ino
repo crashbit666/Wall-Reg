@@ -184,12 +184,10 @@ int mitjaDiposit() {
   byte error = 0;
   byte buit = 0;
   int tmp = 0;
-//  byte count = 0;
-  byte count = 20;
+  byte count = 0;
   byte ple = 0;
 
-//  for (int x = 0; x < 20; x++) {
-  for (int x = 0; x < count; x++) {
+  for (int x = 0; x < 20; x++) {
     tmp = nivellDiposit();
     //Serial.println("tmp: " + String(tmp));
     if (tmp == -1) {

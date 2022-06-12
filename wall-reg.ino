@@ -144,22 +144,22 @@ int nivellDiposit() {
     if (sum == data[3]) {
       distance = (data[1]<<8)+data[2];
       if ((distance > 30) && (distance < 250)) {
-        Serial.print("distance=");
-        Serial.print(distance);
-        Serial.println("mm");
+        //Serial.print("distance=");
+        //Serial.print(distance);
+        //Serial.println("mm");
         delay(100);
         return distance;
       } else if (distance >= 400) {
-        Serial.println("Empty tank");
+        //Serial.println("Empty tank");
         delay(100);
         return 0;
       } else {
-        Serial.println("Full tank");
+        //Serial.println("Full tank");
         delay(100);
         return 1;
       }
     } else {
-      Serial.println("Checksum error");
+      //Serial.println("Checksum error");
       delay(100);
       return -1;
     }
@@ -171,11 +171,11 @@ int nivellDiposit() {
 // Funció per mesurar la mitjana dels valors del sensor de distància (boya).
 // S'ha d'utilitzar aquesta funció ja que el sensor no funciona correctament si no es mesura de forma seguida.
 // Els valors que pot retornar el sensor son:
-// - 0: El dipòsit està massa buit.
-// - 1: El dipòsit està a tope.
-// - distancia: La distància mesurada.
-// - -1: Error al mesurar la distància.
-// - -2: No s'ha pogut mesurar la distància, ja que el sensor no ha facilitat cap dada.
+//  0: El dipòsit està massa buit.
+//  1: El dipòsit està a tope.
+//  distancia: La distància mesurada.
+//  -1: Error al mesurar la distància.
+//  -2: No s'ha pogut mesurar la distància, ja que el sensor no ha facilitat cap dada.
 
 int mitjaDiposit() {
   int suma = 0;
@@ -187,7 +187,7 @@ int mitjaDiposit() {
 
   for (int x = 0; x < 20; x++) {
     tmp = nivellDiposit();
-    Serial.println("tmp: " + String(tmp));
+    //Serial.println("tmp: " + String(tmp));
     if (tmp == -1) {
       error += 1;
     } else if (tmp == 0) {
@@ -201,12 +201,12 @@ int mitjaDiposit() {
       suma += tmp;
     }
   }
-  Serial.println("error: " + String(error));
-  Serial.println("buit: " + String(buit));
-  Serial.println("ple: " + String(ple));
-  Serial.println("count: " + String(count));
-  Serial.println("suma: " + String(suma));
-  Serial.println("mitja: " + String(suma/count));
+  //Serial.println("error: " + String(error));
+  //Serial.println("buit: " + String(buit));
+  //Serial.println("ple: " + String(ple));
+  //Serial.println("count: " + String(count));
+  //Serial.println("suma: " + String(suma));
+  //Serial.println("mitja: " + String(suma/count));
   if (error > 10) {
     return -1;
   } else if (buit > 10) {
@@ -223,11 +223,7 @@ void activateRelay(int i) {
   digitalWrite(pumpRelay[i], ON);
   setWaterPumpStatus(i, true);
   registerLastWattering(i);
-<<<<<<< HEAD
   rele[i] = true;
-=======
-  delay(5000);
->>>>>>> 9c01fb5760a2966077d3ae5ed545cb6f4c9ad887
 }
 
 // Funció que desactiva el relé i deixa de regar.
@@ -240,6 +236,7 @@ void deactivateRelay(int i) {
 
 // Comprova si els nivells d'humitat són els adequats, de no ser així activa/desactiva el relé.
 void testMoistureLevel() {
+  getallServerOptions();
   lastCheck();
   do {
     diposit = mitjaDiposit();
@@ -263,15 +260,15 @@ void testMoistureLevel() {
 // Arreglat el return. Només retorna el true dins del bucle. El false sempre fora del bucle.
 bool checkOpenRelay() {
   for(byte i = 0; i < 4; i++) {
-    ////Serial.print("RELAY ");
-    ////Serial.print(i);
+    //Serial.print("RELAY ");
+    //Serial.print(i);
     if(rele[i] == true) {
       //Serial.println("INTERRUPCIÓ DEL BUCLE RELÉ OBERT");
       return true;
     }
-    ////Serial.println(" ..... OK");
+    //Serial.println(" ..... OK");
   }
-  ////Serial.println("NO HI HA RELÉS OBERTS");
+  //Serial.println("NO HI HA RELÉS OBERTS");
   return false;
   
   /*
@@ -299,8 +296,8 @@ void getallServerOptions() {
 
 // Aquesta funció retorna el temps que ha de sumar a la última comprovació per saber si ha de tornar a fer un check dels sensor i dades del servidor.
 long unsigned humidityTime() {
-  ////Serial.print("freq = ");
-  ////Serial.println(freq);
+  //Serial.print("freq = ");
+  //Serial.println(freq);
   return 60000 * freq; 
 }
 
@@ -310,18 +307,18 @@ void initialize_wifi_firebase() {
   //delay(100);
   
   //Connecta a la Wifi
-  Serial.print("Connectant a la Wi-Fi");
+  //Serial.print("Connectant a la Wi-Fi");
   int status = WL_IDLE_STATUS;
   while (status != WL_CONNECTED)
   {
     status = WiFi.begin(ssidf, passf);
-    Serial.print(".");
+    //Serial.print(".");
     delay(100);
   }
-  Serial.println();
-  Serial.print("Connectat amb IP: ");
-  Serial.println(WiFi.localIP());
-  Serial.println();
+  //Serial.println();
+  //Serial.print("Connectat amb IP: ");
+  //Serial.println(WiFi.localIP());
+  //Serial.println();
   
   //Dades d'autentificació
   Firebase.begin(fbhost, dbsf, ssidf, passf);
@@ -330,15 +327,17 @@ void initialize_wifi_firebase() {
 
 // Mostra errors relacionats amb la inicialització i enviament de dades
 void showError() {
-  Serial.println("FAILED");
-  Serial.println("REASON: " + fbdo.errorReason());
-  Serial.println("=================");
-  Serial.println();
+  //Serial.println("FAILED");
+  //Serial.println("REASON: " + fbdo.errorReason());
+  //Serial.println("=================");
+  //Serial.println();
 
   //Aquí desactivo els relés per evitar que problemes de conexió puguin deixar el reg permanentment engegat.
+  /*
   for (byte i=0; i<4; i++) {
     deactivateRelay(i);
   }
+  */
 }
 
 /* Estructura de la bbdd de firebase 
@@ -446,12 +445,12 @@ void getDate() {
 
   // send an NTP request to the time server at the given address
   unsigned long sendNTPpacket(IPAddress& address) {
-  Serial.println("1");
+  //Serial.println("1");
   // set all bytes in the buffer to 0
   memset(packetBuffer, 0, NTP_PACKET_SIZE);
   // Initialize values needed to form NTP request
   // (see URL above for details on the packets)
-  Serial.println("2");
+  //Serial.println("2");
   packetBuffer[0] = 0b11100011;   // LI, Version, Mode
   packetBuffer[1] = 0;     // Stratum, or type of clock
   packetBuffer[2] = 6;     // Polling Interval
@@ -462,16 +461,16 @@ void getDate() {
   packetBuffer[14]  = 49;
   packetBuffer[15]  = 52;
 
-  Serial.println("3");
+  //Serial.println("3");
 
   // all NTP fields have been given values, now
   // you can send a packet requesting a timestamp:
   Udp.beginPacket(address, 123); //NTP requests are to port 123
-  Serial.println("4");
+  //Serial.println("4");
   Udp.write(packetBuffer, NTP_PACKET_SIZE);
-  Serial.println("5");
+  //Serial.println("5");
   Udp.endPacket();
-  Serial.println("6");
+  //Serial.println("6");
 }
 
 void registerLastWattering(int i) {
@@ -517,10 +516,5 @@ void setup() {
 // *********************************************************
 
 void loop() {
-  timeActual = millis();
-  if (timeActual > (timeLastExecute + humidityTime()) || timeLastExecute == 0 || checkOpenRelay()) {
-    getallServerOptions();
-    timeLastExecute = millis();
-    testMoistureLevel();
-  }
+  testMoistureLevel();
 }

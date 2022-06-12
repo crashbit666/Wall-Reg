@@ -91,7 +91,7 @@ const int pumpRelay[4] = { 2, 3, 4, 5 };
 const int moistureSensor[4] = { A0, A1, A2, A3 };
 const int ON = LOW;
 const int OFF = HIGH;
-bool reles[4] = { false, false, false, false };
+bool rele[4] = { false, false, false, false };
 
 // Inicialitza la variable sense valor per posteriorment recollira-la del servidor fb
 int nivellHumitat[4];
@@ -226,7 +226,7 @@ void activateRelay(int i) {
   digitalWrite(pumpRelay[i], ON);
   setWaterPumpStatus(i, true);
   registerLastWattering(i);
-  reles[i] = true;
+  rele[i] = true;
 }
 
 // Funció que desactiva el relé i deixa de regar.
@@ -234,7 +234,7 @@ void deactivateRelay(int i) {
   // Aquí potser es tindria que afegir un comprobació per saber si ja està parat
   digitalWrite(pumpRelay[i], OFF);
   setWaterPumpStatus(i, false);
-  reles[i] = false;
+  rele[i] = false;
 }
 
 // Comprova si els nivells d'humitat són els adequats, de no ser així activa/desactiva el relé.
@@ -248,7 +248,7 @@ void testMoistureLevel() {
       sendData(i,moistureLevelSensor[i]); // Envia les dades a la bbdd firebase.
       if ((diposit != -1) && (diposit != 0) && (diposit != 1) && (moistureLevelSensor[i] > nivellHumitat[i])) { 
         activateRelay(i);
-      } else if (reles[i]) == true) {
+      } else if (rele[i] == true) {
         deactivateRelay(i);
       }
     }
@@ -264,7 +264,7 @@ bool checkOpenRelay() {
   for(byte i = 0; i < 4; i++) {
     ////Serial.print("RELAY ");
     ////Serial.print(i);
-    if(reles[i] == true) {
+    if(rele[i] == true) {
       //Serial.println("INTERRUPCIÓ DEL BUCLE RELÉ OBERT");
       return true;
     }

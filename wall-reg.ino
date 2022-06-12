@@ -252,6 +252,7 @@ void testMoistureLevel() {
         deactivateRelay(i);
       }
     }
+    delay(5000);
   } while (checkOpenRelay());
 }
 
@@ -260,7 +261,6 @@ void testMoistureLevel() {
 // De no fer-ho es podria donar el cas que un relé estigués fins a 60 minuts funcionant.
 // Arreglat el return. Només retorna el true dins del bucle. El false sempre fora del bucle.
 bool checkOpenRelay() {
-  //int status = 0;
   for(byte i = 0; i < 4; i++) {
     ////Serial.print("RELAY ");
     ////Serial.print(i);

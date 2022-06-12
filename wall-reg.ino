@@ -243,6 +243,11 @@ void testMoistureLevel() {
     for (byte i = 0; i < 4; i++) {
       moistureLevelSensor[i] = analogRead(moistureSensor[i]); // Lectura del sensor de humitat
       sendData(i,moistureLevelSensor[i]); // Envia les dades a la bbdd firebase.
+      if ((diposit != -1) && (diposit != 0) && (diposit != 1)) { 
+        if(moistureLevelSensor[i] > nivellHumitat[i]) {
+          activateRelay(i);
+        }
+      }
     }
   } while (checkOpenRelay());
 }

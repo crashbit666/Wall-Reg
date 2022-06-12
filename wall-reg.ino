@@ -53,7 +53,6 @@
 #include "arduino_secrets.h"
 #include <SoftwareSerial.h>
 #include <WiFiUdp.h>
-#include <TaskScheduler.h>
 
 // Variables per poder agafar la data actual
 unsigned int localPort = 2390;      // Port local on escoltar els paquets UDP
@@ -79,6 +78,10 @@ char ssidf[] = SECRET_SSIDF;
 char passf[] = SECRET_PASSF;
 char dbsf[] = SECRET_DBSF;
 char fbhost[] = SECRET_FBHOST;
+
+// Variables per el temps que porta executant-se el programa i el temps des de la última execució de les medicions.
+unsigned long timeActual = 0;
+unsigned long timeLastExecute = 0;
 
 //Inicialitza la variable sense valor. Ja agafa el valor del servidor firebase.
 byte freq;
@@ -296,8 +299,6 @@ void getallServerOptions() {
 
 // Aquesta funció retorna el temps que ha de sumar a la última comprovació per saber si ha de tornar a fer un check dels sensor i dades del servidor.
 long unsigned humidityTime() {
-  //Serial.print("freq = ");
-  //Serial.println(freq);
   return 60000 * freq; 
 }
 
@@ -475,15 +476,11 @@ void getDate() {
 
 void registerLastWattering(int i) {
   getDate();
-  if (!Firebase.setString(fbdo, path + "/lastWattering", hour + ":" + minutes + ":" + seconds + " | torreta-> " + i)) {
+  if (!Firebase.setString(fbdo, path + "/lastWattering", hour + ":" + minutes + ":" + seconds + " | bomba-> " + i)) {
     showError();
-    //
   }
 }
 
-byte tsfreq = getdataFreq();
-Task tMeasure (tsfreq*60, TASK_FOREVER, &testMoistureLevel);
-Scheduler taskManager;
 
 // *********************************************************
 // ********************** setup() **************************
@@ -504,11 +501,6 @@ void setup() {
 
    //Inicialitza el port UDP per NTP
   Udp.begin(localPort);
-
-  //Inicialitza el taskscheduler
-  taskManager.init();
-  taskManager.addTask(tMeasure);
-  tMeasure.enable();
 }
 
 // *********************************************************
@@ -516,5 +508,9 @@ void setup() {
 // *********************************************************
 
 void loop() {
-  testMoistureLevel();
+  timeActual = millis();
+  if (timeActual > (timeLastExecute + humidityTime()) || timeLastExecute == 0) {
+     testMoistureLevel();
+     timeLastExecute = millis();
+  }
 }

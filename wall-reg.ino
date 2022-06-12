@@ -273,6 +273,7 @@ bool checkOpenRelay() {
   }
   ////Serial.println("NO HI HA RELÉS OBERTS");
   return false;
+  
   /*
   bool bRetorn = false;
   for(byte i = 0; i < 4; i++) {
@@ -296,7 +297,6 @@ void getallServerOptions() {
   }
 }
 
-<<<<<<< HEAD
 // Aquesta funció retorna el temps que ha de sumar a la última comprovació per saber si ha de tornar a fer un check dels sensor i dades del servidor.
 long unsigned humidityTime() {
   ////Serial.print("freq = ");
@@ -304,8 +304,6 @@ long unsigned humidityTime() {
   return 60000 * freq; 
 }
 
-=======
->>>>>>> 9c01fb5760a2966077d3ae5ed545cb6f4c9ad887
 // La següent funció inicialitza els paràmetres del servidor firebase.
 void initialize_wifi_firebase() {
   Serial.begin(57600);
@@ -519,17 +517,10 @@ void setup() {
 // *********************************************************
 
 void loop() {
-<<<<<<< HEAD
   timeActual = millis();
   if (timeActual > (timeLastExecute + humidityTime()) || timeLastExecute == 0 || checkOpenRelay()) {
     getallServerOptions();
     timeLastExecute = millis();
     testMoistureLevel();
   }
-=======
-  getallServerOptions();
-  delay(5000);
-  sendDiposit(mitjaDiposit());
-  taskManager.execute();
->>>>>>> 9c01fb5760a2966077d3ae5ed545cb6f4c9ad887
 }

@@ -245,6 +245,8 @@ void testMoistureLevel() {
       sendData(i,moistureLevelSensor[i]); // Envia les dades a la bbdd firebase.
       if ((diposit != -1) && (diposit != 0) && (diposit != 1) && (moistureLevelSensor[i] > nivellHumitat[i])) { 
         activateRelay(i);
+      } else if (reles[i]) == true) {
+        deactivateRelay(i);
       }
     }
   } while (checkOpenRelay());

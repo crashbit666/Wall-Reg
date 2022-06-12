@@ -273,6 +273,13 @@ bool checkOpenRelay() {
   }
   ////Serial.println("NO HI HA RELÉS OBERTS");
   return false;
+  /*
+  bool bRetorn = false;
+  for(byte i = 0; i < 4; i++) {
+    bRetorn = bRetorn || rele[i];
+  }  
+  return bRetorn;
+  */
 }
 
 // Aquesta funció agafa els valors de les variables del servidor que posteriorment s'inicialitzaran al setup() i es recomprova segons la frequencia.

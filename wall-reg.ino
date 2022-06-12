@@ -91,7 +91,7 @@ const int pumpRelay[4] = { 2, 3, 4, 5 };
 const int moistureSensor[4] = { A0, A1, A2, A3 };
 const int ON = LOW;
 const int OFF = HIGH;
-bool rele[4] = { false, false, false, false };
+bool reles[4] = { false, false, false, false };
 
 // Inicialitza la variable sense valor per posteriorment recollira-la del servidor fb
 int nivellHumitat[4];
@@ -226,8 +226,7 @@ void activateRelay(int i) {
   digitalWrite(pumpRelay[i], ON);
   setWaterPumpStatus(i, true);
   registerLastWattering(i);
-  rele(i) = true;
-  delay(5000);
+  reles[i] = true;
 }
 
 // Funció que desactiva el relé i deixa de regar.
@@ -235,7 +234,7 @@ void deactivateRelay(int i) {
   // Aquí potser es tindria que afegir un comprobació per saber si ja està parat
   digitalWrite(pumpRelay[i], OFF);
   setWaterPumpStatus(i, false);
-  rele(i) = false;
+  reles[i] = false;
 }
 
 // Comprova si els nivells d'humitat són els adequats, de no ser així activa/desactiva el relé.
@@ -244,14 +243,22 @@ void testMoistureLevel() {
     for (byte i = 0; i < 4; i++) {
       moistureLevelSensor[i] = analogRead(moistureSensor[i]); // Lectura del sensor de humitat
       sendData(i,moistureLevelSensor[i]); // Envia les dades a la bbdd firebase.
-      if(moistureLevelSensor[i] > nivellHumitat[i]) {
-        if ((diposit != -1) && (diposit != 0) && (diposit != 1)) { // Si el dipòsit està buit, la medició ha donat error o marca com a ple no activis el relé.
-          activateRelay(i);
-        }
-      }
     }
   } while (checkOpenRelay());
 }
+
+
+/*
+      if(moistureLevelSensor[i] > nivellHumitat[i]) {
+        if ((diposit != -1) && (diposit != 0) && (diposit != 1)) { // Si el dipòsit està buit, la medició ha donat error o marca com a ple no activis el relé.
+          activateRelay(i);
+          delay(5000);
+          deactivateRelay(i);
+        }
+      }
+*/
+
+
 
 // Aquest funció serveix per que si hi ha un relé obert (és a dir, està regant), no faci el següent test al cap de 5 segons i no el temps establert per servidor.
 // De no fer-ho es podria donar el cas que un relé estigués fins a 60 minuts funcionant.

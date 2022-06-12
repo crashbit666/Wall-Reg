@@ -239,7 +239,10 @@ void deactivateRelay(int i) {
 
 // Comprova si els nivells d'humitat són els adequats, de no ser així activa/desactiva el relé.
 void testMoistureLevel() {
+  lastCheck();
   do {
+    diposit = mitjaDiposit();
+    sendDiposit(diposit);
     for (byte i = 0; i < 4; i++) {
       moistureLevelSensor[i] = analogRead(moistureSensor[i]); // Lectura del sensor de humitat
       sendData(i,moistureLevelSensor[i]); // Envia les dades a la bbdd firebase.
@@ -251,18 +254,6 @@ void testMoistureLevel() {
     }
   } while (checkOpenRelay());
 }
-
-
-/*
-      if(moistureLevelSensor[i] > nivellHumitat[i]) {
-        if ((diposit != -1) && (diposit != 0) && (diposit != 1)) { // Si el dipòsit està buit, la medició ha donat error o marca com a ple no activis el relé.
-          activateRelay(i);
-          delay(5000);
-          deactivateRelay(i);
-        }
-      }
-*/
-
 
 
 // Aquest funció serveix per que si hi ha un relé obert (és a dir, està regant), no faci el següent test al cap de 5 segons i no el temps establert per servidor.
@@ -525,10 +516,7 @@ void setup() {
 void loop() {
   timeActual = millis();
   if (timeActual > (timeLastExecute + humidityTime()) || timeLastExecute == 0 || checkOpenRelay()) {
-    lastCheck();
     getallServerOptions();
-    diposit = mitjaDiposit();
-    sendDiposit(diposit);
     timeLastExecute = millis();
     testMoistureLevel();
   }

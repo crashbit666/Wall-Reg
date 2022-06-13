@@ -255,6 +255,14 @@ void testMoistureLevel() {
     }
     delay(5000);
   } while (checkOpenRelay());
+  
+  // Quan surt del do while torna a enviar les dades del diposit i dels sensor d'humitat.
+  diposit = mitjaDiposit();
+  sendDiposit(diposit);
+  for (byte i = 0; i < 4; i++) {
+    moistureLevelSensor[i] = analogRead(moistureSensor[i]); // Lectura del sensor de humitat
+    sendData(i,moistureLevelSensor[i]); // Envia les dades a la bbdd firebase.
+  }
 }
 
 

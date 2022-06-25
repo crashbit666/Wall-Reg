@@ -239,7 +239,6 @@ void deactivateRelay(int i) {
 
 // Comprova si els nivells d'humitat són els adequats, de no ser així activa/desactiva el relé.
 void testMoistureLevel() {
-  getallServerOptions();
   lastCheck();
   do {
     diposit = mitjaDiposit();

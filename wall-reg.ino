@@ -24,7 +24,7 @@
 
 // IMPLEMETACIONS:
 // - Firebase realtime database: https://github.com/mobizt/Firebase-Arduino-WiFiNINA
-// - TaskScheduler: https://github.com/arkhipenko/TaskScheduler/wiki/Implementation-scenarios-and-ideas/#1-event-driven-programming
+// - (NO) TaskScheduler: https://github.com/arkhipenko/TaskScheduler/wiki/Implementation-scenarios-and-ideas/#1-event-driven-programming
 
 
 ////// Variables servidor //////
@@ -125,7 +125,7 @@ La funció pot retirn tres tipus diferents de valors.
   *  1: El dispòsit està a tope.
   * -1: No s'ha pogut mesurar la distància.
   * 30 <> 400: La distància mesurada.
-He triat 250, ja que no disposo de cap dipòsit superior i per tant la distància seria erronea.
+He triat 245, ja que no disposo de cap dipòsit superior i per tant la distància seria erronea.
 Pendent de mesurar el dipòsit i canviar el 400mm per valor corresponent.
 */
 int nivellDiposit() {
@@ -146,7 +146,7 @@ int nivellDiposit() {
     sum = (data[0]+data[1]+data[2])&0x00FF;
     if (sum == data[3]) {
       distance = (data[1]<<8)+data[2];
-      if ((distance > 30) && (distance < 250)) {
+      if ((distance > 30) && (distance < 245)) {
         //Serial.print("distance=");
         //Serial.print(distance);
         //Serial.println("mm");
@@ -254,9 +254,10 @@ void testMoistureLevel() {
       }
     }
     delay(5000);
+    getallServerOptions();
   } while (checkOpenRelay());
   
-  // Quan surt del do while torna a enviar les dades del diposit i dels sensor d'humitat.
+  // Quan surt del do while torna a enviar les dades del diposit i dels sensor d'humitat. Ja que si no, l'última passada pel do while no s'actualitza.
   diposit = mitjaDiposit();
   sendDiposit(diposit);
   for (byte i = 0; i < 4; i++) {
